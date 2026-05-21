@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: .fromSeed(seedColor: Colors.lightBlue),
+        useMaterial3: true,
       ),
       home: AppMain(),
     );
@@ -21,14 +22,11 @@ class MyApp extends StatelessWidget {
 }
 
 class AppMain extends StatelessWidget{
-
-  const AppMain({super.key});
-
+  
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
-      child: Container(
+    return Scaffold(
+      body: Container(
 
       ),
     );
