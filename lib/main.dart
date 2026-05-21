@@ -27,9 +27,9 @@ class AppMain extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: Theme.of(context).colorScheme.background),
+      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
       child: Container(
-        
+
       ),
     );
   }
