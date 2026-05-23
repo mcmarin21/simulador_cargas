@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'ui/util.dart';
+import 'ui/theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,25 +12,27 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final brightness = View.of(context).platformDispatcher.platformBrightness;
+
+    TextTheme textTheme = createTextTheme(
+      context,
+      "Red Hat Text",
+      "Red Hat Display",
+    );
+
+    MaterialTheme theme = MaterialTheme(textTheme);
+
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.lightBlue),
-        useMaterial3: true,
-      ),
+      theme: brightness == Brightness.light ? theme.light() : theme.dark(),
       home: AppMain(),
     );
   }
 }
 
-class AppMain extends StatelessWidget{
-  
+class AppMain extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-
-      ),
-    );
+    return Scaffold(body: Container());
   }
 }
