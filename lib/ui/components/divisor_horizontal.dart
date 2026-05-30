@@ -7,6 +7,6 @@ class DivisorHorizontal extends StatelessWidget{
   Widget build(BuildContext context) {
     return(
       Container()
-    )
+    );
   }
 }
