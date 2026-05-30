@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:simulador_cargas/ui/screens/app_home.dart';
+// import 'package:simulador_cargas/ui/screens/app_home.dart';
+import 'package:simulador_cargas/ui/screens/test.dart';
 import 'ui/theme/util.dart';
 import 'ui/theme/theme.dart';
 
@@ -25,14 +28,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: brightness == Brightness.light ? theme.light() : theme.dark(),
-      home: AppMain(),
+      home: const AppHome(),
     );
-  }
-}
-
-class AppMain extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: Container());
   }
 }
