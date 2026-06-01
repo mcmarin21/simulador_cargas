@@ -30,7 +30,12 @@ class _AppHomeState extends State<AppHome>{
             width: tamanoIzq,
             child: PanelCargas(),
           ),
-          DivisorHorizontal(),
+          DivisorHorizontal(
+            width: _tamanoDivisor,
+            onDragUpdate: (details) {
+
+            },
+          ),
           SizedBox(
             width: tamanoDer,
           )
