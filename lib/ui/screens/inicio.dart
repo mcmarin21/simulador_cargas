@@ -30,6 +30,7 @@ class _InicioState extends State<Inicio> {
   // 2. Centrado horizontalmente (restando la mitad del ancho del botón)
   left: (screenwidth / 2) - (screenwidth * 0.15), 
   
+  //boton inicio
   child: ElevatedButton(
     onPressed: () {
       Navigator.push(
@@ -52,7 +53,7 @@ class _InicioState extends State<Inicio> {
         'Iniciar',
         style: GoogleFonts.sniglet(
           // Ajustado a un tamaño legible (aprox 16-20 píxeles dependiendo del dispositivo)
-          fontSize: screenwidth * 0.045, 
+          fontSize: screenwidth * 0.03, 
           fontWeight: FontWeight.bold,
           color: Colors.black,
         ),

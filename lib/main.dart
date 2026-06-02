@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:simulador_cargas/core/app_colors.dart';
 import 'package:simulador_cargas/ui/screens/app_home.dart';
 import 'package:simulador_cargas/ui/screens/inicio.dart';
 import 'ui/theme/util.dart';
@@ -27,7 +28,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: brightness == Brightness.light ? theme.light() : theme.dark(),
-      home: const Inicio(),
+      home: Scaffold(
+        body:  const Inicio()
+        ),
     );
   }
 }
