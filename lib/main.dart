@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:simulador_cargas/core/app_colors.dart';
-import 'package:simulador_cargas/ui/screens/app_home.dart';
 import 'package:simulador_cargas/ui/screens/inicio.dart';
 import 'ui/theme/util.dart';
 import 'ui/theme/theme.dart';
