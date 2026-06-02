@@ -98,28 +98,47 @@ class _AppHomeState extends State<AppHome> {
 
                         // Renderizamos en el plano las cargas que ya tienen coordenadas
                         ...cargas.map((c) {
-                          // Si sigue en el origen (0,0), asumimos que no ha sido arrastrada al plano
                           if (c.pos.x == 0 && c.pos.y == 0) return const SizedBox.shrink();
 
-                          // Definimos colores según el signo de la carga
-                          Color colorCarga = c.magnitud > 0 ? Colors.red : (c.magnitud < 0 ? Colors.blue : Colors.grey);
-                          IconData iconoCarga = c.magnitud > 0 ? Icons.add_circle : (c.magnitud < 0 ? Icons.remove_circle : Icons.circle_outlined);
+  Color colorCarga = c.magnitud > 0 ? Colors.red : Colors.blue;
+  IconData iconoCarga = c.magnitud > 0 ? Icons.add_circle : Icons.remove_circle;
 
-                          return Positioned(
-                            left: c.pos.x - 20, // Centramos el ícono (mitad del tamaño de 40)
-                            top: c.pos.y - 20,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(iconoCarga, color: colorCarga, size: 40),
-                                Text(
-                                  c.nombre,
-                                  style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
+  return Positioned(
+    left: c.pos.x - 20,
+    top: c.pos.y - 20,
+    child: GestureDetector(
+      // OPCIÓN A: Si da doble clic sobre la esfera, se regresa al panel
+      onDoubleTap: () {
+        setState(() {
+          c.pos.x = 0;
+          c.pos.y = 0;
+        });
+      },
+      // OPCIÓN B: Si deja presionado el ícono, se elimina por COMPLETO de la app
+      onLongPress: () {
+        setState(() {
+          cargas.remove(c); // La borramos por completo de la lista unificada
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${c.nombre} eliminada del simulador')),
+        );
+      },
+      child: Tooltip(
+        message: "${c.nombre}\n• Doble clic: Regresar al panel\n• Mantener presionado: Borrar del todo",
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(iconoCarga, color: colorCarga, size: 40),
+            Text(
+              c.nombre,
+              style: const TextStyle(color: Colors.white70, fontSize: 11),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}),
 
                         // ========================================================
                         // AQUÍ EN EL FUTURO COLOCARÁS LA GRÁFICA DE LAS INTERACCIONES
