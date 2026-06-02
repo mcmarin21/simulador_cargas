@@ -15,7 +15,7 @@ class _PanelCargasState extends State<PanelCargas>{
   @override
   Widget build(BuildContext context) {
 
-    var carga = Carga(Vector(0,0), 0, 0);
+    var carga = Carga(1, Vector(0,0), 0, 0, "Carga");
 
     return(
       Scaffold(

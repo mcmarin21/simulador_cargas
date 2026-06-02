@@ -2,11 +2,13 @@ import 'package:simulador_cargas/domain/vector.dart';
 import 'dart:math';
 
 class Carga {
+  int id = 0;
   Vector pos;
   double magnitud = 0;
   int prefijo = 0;
+  String nombre = "Carga";
 
-  Carga(this.pos, this.magnitud, this.prefijo);
+  Carga(this.id, this.pos, this.magnitud, this.prefijo, this.nombre);
 
 
   Vector calcularFuerza(Carga otraCarga) {

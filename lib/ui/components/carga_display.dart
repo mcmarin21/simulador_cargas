@@ -3,23 +3,29 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:simulador_cargas/domain/carga.dart';
 
-class CargaDisplay extends StatelessWidget{
+class CargaDisplay extends StatefulWidget{
 
-  Carga carga;
+  final Carga carga;
 
-  CargaDisplay({
+  const CargaDisplay({
     required this.carga,
     super.key,
   });
 
   @override
+  State<CargaDisplay> createState() => _CargaDisplayState();
+}
+
+class _CargaDisplayState extends State<CargaDisplay>{
+
+  @override
   Widget build(BuildContext context) {
     IconData icono;
 
-    if(carga.magnitud == 0){
+    if(widget.carga.magnitud == 0){
       icono = Symbols.counter_0_rounded;
     }
-    else if(carga.magnitud > 0){
+    else if(widget.carga.magnitud > 0){
       icono = Symbols.add_circle_outline_rounded;
     }
     else{
@@ -41,8 +47,8 @@ class CargaDisplay extends StatelessWidget{
             spacing: 4,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Carga 1"),
-              Text("${carga.magnitud} x10^${carga.prefijo}C"),
+              Text(widget.carga.nombre),
+              Text("${widget.carga.magnitud} x10^${widget.carga.prefijo}C"),
             ],
           )
         ],
