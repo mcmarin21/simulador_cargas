@@ -21,7 +21,6 @@ class _PanelCargasState extends State<PanelCargas> {
 
   // Función encargada de desplegar la ventana emergente
   void _mostrarVentanaConfiguracion(BuildContext context) {
-  // 1. Creamos los controladores para capturar el texto de los inputs
   final nombreController = TextEditingController(text: "Carga Q1");
   final magnitudController = TextEditingController(text: "5.0");
   final prefijoController = TextEditingController(text: "-6");
@@ -29,72 +28,111 @@ class _PanelCargasState extends State<PanelCargas> {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      // Usamos StatefulBuilder para que la vista previa cambie en tiempo real al escribir
       return StatefulBuilder(
         builder: (context, setDialogState) {
           
-          // 2. Parseas con seguridad los valores que el usuario va escribiendo
+          // 1. Parseas el texto que el usuario escribe
           final double? magnitudInput = double.tryParse(magnitudController.text);
           final int? prefijoInput = int.tryParse(prefijoController.text);
 
-          // 3. Creamos la carga temporal usando lo que haya en los inputs (o valores por defecto si están vacíos)
+          // 2. Evaluamos el signo para mostrar información visual dinámica en el formulario
+          double magnitudActual = magnitudInput ?? 0.0;
+          
+          String tipoDeCarga;
+          Color colorEstado;
+          IconData iconoEstado;
+
+          if (magnitudActual == 0) {
+            tipoDeCarga = "Carga Neutra";
+            colorEstado = Colors.grey;
+            iconoEstado = Icons.circle_outlined;
+          } else if (magnitudActual > 0) {
+            tipoDeCarga = "Carga Positiva (Protón / Fuente)";
+            colorEstado = Colors.redAccent;
+            iconoEstado = Icons.add_circle_rounded;
+          } else {
+            tipoDeCarga = "Carga Negativa (Electrón / Sumidero)";
+            colorEstado = Colors.blueAccent;
+            iconoEstado = Icons.remove_circle_rounded;
+          }
+
+          // 3. Creamos la carga de prueba
           final cargaNuevaPreview = Carga(
             0,
             Vector(0, 0),
-            magnitudInput ?? 0.0,
+            magnitudActual,
             prefijoInput ?? 0,
-            nombreController.text.isEmpty ? "Sin nombre" : nombreController.text,
+            nombreController.text.isEmpty ? "Carga" : nombreController.text,
           );
 
           return AlertDialog(
             title: const Text('Configurar Nueva Carga'),
-            content: SingleChildScrollView( // Evita que se corte la pantalla si se abre el teclado
+            content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // --- FORMULARIO DE CONFIGURACIÓN ---
                   TextField(
                     controller: nombreController,
-                    decoration: const InputDecoration(
-                      labelText: 'Nombre de la carga',
-                      hintText: 'Ej: Q1, Carga Central',
-                    ),
-                    onChanged: (val) => setDialogState(() {}), // Refresca la vista previa
+                    decoration: const InputDecoration(labelText: 'Nombre de la carga'),
+                    onChanged: (val) => setDialogState(() {}),
                   ),
                   const SizedBox(height: 12),
                   
+                  // INPUT DE MAGNITUD: El truco está aquí
                   TextField(
                     controller: magnitudController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(
-                      labelText: 'Magnitud (double)',
-                      hintText: 'Ej: 5.0 o -3.5',
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true), // Habilita el signo '-' en el teclado móvil
+                    decoration: InputDecoration(
+                      labelText: 'Magnitud',
+                      hintText: 'Ej: 5.0 o -5.0',
+                      helperText: 'Coloca un menos (-) para hacerla negativa',
+                      helperStyle: TextStyle(color: colorEstado, fontWeight: FontWeight.bold),
                     ),
-                    onChanged: (val) => setDialogState(() {}),
+                    onChanged: (val) {
+                      // Al escribir, forzamos a que el diálogo vuelva a leer el número y cambie los colores
+                      setDialogState(() {}); 
+                    },
                   ),
                   const SizedBox(height: 12),
                   
                   TextField(
                     controller: prefijoController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Prefijo Exponente (int)',
-                      hintText: 'Ej: -6 para micro (x10^-6)',
-                    ),
+                    decoration: const InputDecoration(labelText: 'Prefijo Exponente (int)'),
                     onChanged: (val) => setDialogState(() {}),
                   ),
                   
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   
-                  // --- SECCIÓN DE VISTA PREVIA ---
+                  // INDICADOR DINÁMICO EN EL FORMULARIO
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: colorEstado.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: colorEstado.withOpacity(0.5)),
+                    ),
+                    child: Row(
+                      spacing: 8,
+                      children: [
+                        Icon(iconoEstado, color: colorEstado),
+                        Text(
+                          tipoDeCarga,
+                          style: TextStyle(color: colorEstado, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 20),
                   const Text(
                     'Vista previa en tiempo real:',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.blueGrey),
                   ),
                   const SizedBox(height: 8),
                   
-                  // Tu widget maravilloso reaccionando a los cambios
+                  // Tu CargaDisplay que ya tiene la lógica de cambiar de color sola
                   CargaDisplay(carga: cargaNuevaPreview),
                 ],
               ),
@@ -102,7 +140,6 @@ class _PanelCargasState extends State<PanelCargas> {
             actions: [
               TextButton(
                 onPressed: () {
-                  // Limpieza de controladores al cancelar
                   nombreController.dispose();
                   magnitudController.dispose();
                   prefijoController.dispose();
@@ -111,27 +148,26 @@ class _PanelCargasState extends State<PanelCargas> {
                 child: const Text('Cancelar'),
               ),
               ElevatedButton(
-  onPressed: () {
-  final double? magnitudInput = double.tryParse(magnitudController.text);
-  final int? prefijoInput = int.tryParse(prefijoController.text);
+                onPressed: () {
+                  if (magnitudInput == null || prefijoInput == null) return;
 
-  final cargaDefinitiva = Carga(
-    widget.cargas.length + 1, // ID automático
-    Vector(0, 0),             // Posición
-    magnitudInput ?? 0.0,     // Magnitud real
-    prefijoInput ?? 0,        // Prefijo real
-    nombreController.text.isEmpty ? "Carga" : nombreController.text,
-  );
+                  final cargaDefinitiva = Carga(
+                    widget.cargas.length + 1,
+                    Vector(0, 0),
+                    magnitudActual,
+                    prefijoInput,
+                    nombreController.text.isEmpty ? "Carga" : nombreController.text,
+                  );
 
-  nombreController.dispose();
-  magnitudController.dispose();
-  prefijoController.dispose();
-
-  Navigator.pop(context); // Cierra el diálogo
-  widget.onCargaAgregada(cargaDefinitiva); // <-- Mandamos la carga al main.dart
-},
-  child: const Text('Agregar'),
-),
+                  nombreController.dispose();
+                  magnitudController.dispose();
+                  prefijoController.dispose();
+                  
+                  Navigator.pop(context);
+                  widget.onCargaAgregada(cargaDefinitiva);
+                },
+                child: const Text('Agregar'),
+              ),
             ],
           );
         },
