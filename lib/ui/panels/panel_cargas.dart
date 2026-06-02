@@ -5,11 +5,11 @@ import 'package:simulador_cargas/ui/components/carga_display.dart';
 
 class PanelCargas extends StatefulWidget {
   final List<Carga> cargas;
-  final ValueChanged<Carga> onCargaAgregada; // <-- Cambiamos esto
+  final ValueChanged<Carga> onCargaAgregada;
 
   const PanelCargas({
     required this.cargas,
-    required this.onCargaAgregada, // <-- Cambiamos esto
+    required this.onCargaAgregada,
     super.key,
   });
 
@@ -18,6 +18,14 @@ class PanelCargas extends StatefulWidget {
 }
 
 class _PanelCargasState extends State<PanelCargas> {
+
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   // Función encargada de desplegar la ventana emergente
   void _mostrarVentanaConfiguracion(BuildContext context) {
@@ -182,17 +190,30 @@ class _PanelCargasState extends State<PanelCargas> {
       appBar: AppBar(
         title: const Text('Simulador de cargas'),
       ),
-      body: ListView.builder(
-        itemCount: widget.cargas.isEmpty ? 1 : widget.cargas.length,
-        itemBuilder: (context, index) {
-          if (widget.cargas.isEmpty) {
-            return const Center(child: Text("No hay cargas agregadas"));
-          }
-          return CargaDisplay(carga: widget.cargas[index]); // El llamado original en la lista [cite: 51]
-        },
+      body: Scrollbar(
+        controller: _scrollController,
+        child: Padding(
+          padding: EdgeInsetsGeometry.fromLTRB(24, 32, 24, 0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: widget.cargas.isEmpty ? 1 : widget.cargas.length,
+                itemBuilder: (context, index) {
+                  if (widget.cargas.isEmpty) {
+                    return const Center(child: Text("No hay cargas agregadas"));
+                  }
+                  return CargaDisplay(carga: widget.cargas[index]);
+                },
+              ),
+            ),
+          ),
+        )
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _mostrarVentanaConfiguracion(context), // Llama a la ventana flotante
+        onPressed: () => _mostrarVentanaConfiguracion(context),
         child: const Icon(Icons.add),
       ),
     );

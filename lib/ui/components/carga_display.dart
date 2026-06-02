@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:simulador_cargas/domain/carga.dart';
 
 class CargaDisplay extends StatelessWidget {
@@ -30,8 +28,9 @@ class CargaDisplay extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(14.0),
+      margin: EdgeInsetsGeometry.symmetric(vertical: 6, horizontal: 0),
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
