@@ -11,17 +11,18 @@ class AppHome extends StatefulWidget {
 
 class _AppHomeState extends State<AppHome>{
 
-  double fracIzquierda = 0.4;
 
   static const double _tamanoDivisor = 8.0;
-  static const double _fracMin = 0.4;
+  static const double _fracMin = 0.25;
+
+  double _fracIzquierda = _fracMin;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       final tamMax = constraints.maxWidth;
 
-      var tamanoIzq = (tamMax - _tamanoDivisor) * fracIzquierda;
+      var tamanoIzq = (tamMax - _tamanoDivisor) * _fracIzquierda;
       var tamanoDer = tamMax - _tamanoDivisor - tamanoIzq;
 
       return Row(
@@ -33,12 +34,15 @@ class _AppHomeState extends State<AppHome>{
           DivisorHorizontal(
             width: _tamanoDivisor,
             onDragUpdate: (details) {
-
+              setState(() {
+                final delta = details.delta.dx / tamMax;
+                _fracIzquierda = (_fracIzquierda + delta).clamp(_fracMin, 1 - _fracMin,);
+              });
             },
           ),
           SizedBox(
             width: tamanoDer,
-          )
+          ),
         ],
       );
     });
