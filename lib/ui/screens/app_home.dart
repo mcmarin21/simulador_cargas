@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:simulador_cargas/core/app_colors.dart';
+//import 'package:simulador_cargas/core/app_colors.dart';
+import 'package:simulador_cargas/domain/carga.dart';
+import 'package:simulador_cargas/domain/vector.dart';
 import 'package:simulador_cargas/ui/components/divisor_horizontal.dart';
 import 'package:simulador_cargas/ui/panels/panel_cargas.dart';
 
@@ -18,6 +20,14 @@ class _AppHomeState extends State<AppHome>{
 
   double _fracIzquierda = _fracMin;
 
+  List<Carga> cargas = [];
+
+  void agregarCarga(Carga carga) {
+    setState(() {
+      cargas.add(carga);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -27,20 +37,13 @@ class _AppHomeState extends State<AppHome>{
       var tamanoDer = tamMax - _tamanoDivisor - tamanoIzq;
 
       return Scaffold(
-        appBar: AppBar(
-          backgroundColor: AppColors.fondo,
-          actions: [
-            IconButton(onPressed:(){Navigator.pop(context);}
-            , icon: Image.asset("assets/images/flecha.png")
-            )
-          ],
-        ),
 body: 
         Row(
           children: [
             SizedBox(
               width: tamanoIzq,
-              child: PanelCargas(),
+              child: PanelCargas(cargas: cargas,
+                onFABPressed: () => agregarCarga(Carga(1, Vector(0,0), 2, 0, "carga1")),),
             ),
             DivisorHorizontal(
               width: _tamanoDivisor,
