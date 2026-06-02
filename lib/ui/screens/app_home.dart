@@ -42,8 +42,12 @@ body:
           children: [
             SizedBox(
               width: tamanoIzq,
-              child: PanelCargas(cargas: cargas,
-                onFABPressed: () => agregarCarga(Carga(1, Vector(0,0), 2, 0, "carga1")),),
+              child: PanelCargas(cargas: cargas, // Le pasas tu lista de la línea 11
+            onCargaAgregada: (nuevaCarga) { // <-- Capturamos la carga del diálogo
+              setState(() {
+                cargas.add(nuevaCarga); // ¡AQUÍ SE GUARDA EN TU LISTA PARA SIEMPRE!
+              });
+  },),
             ),
             DivisorHorizontal(
               width: _tamanoDivisor,
