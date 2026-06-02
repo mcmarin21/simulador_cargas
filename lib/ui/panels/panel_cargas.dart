@@ -4,7 +4,13 @@ import 'package:simulador_cargas/domain/vector.dart';
 import 'package:simulador_cargas/ui/components/carga_display.dart';
 
 class PanelCargas extends StatefulWidget{
-  const PanelCargas({super.key});
+  final List<Carga> cargas;
+  final VoidCallback onFABPressed;
+  const PanelCargas({
+    required this.cargas,
+    required this.onFABPressed,
+    super.key
+  });
 
   @override
   State<PanelCargas> createState() => _PanelCargasState();
@@ -15,20 +21,22 @@ class _PanelCargasState extends State<PanelCargas>{
   @override
   Widget build(BuildContext context) {
 
-    var carga = Carga(1, Vector(0,0), 0, 0, "Carga");
-
     return(
       Scaffold(
         appBar: AppBar(
           title: const Text('Simulador de cargas'),
         ),
-        body: Column(
-          children: [
-            CargaDisplay(carga: carga),
-          ],
+        body: ListView.builder(
+          itemCount: widget.cargas.isEmpty ? 1 : widget.cargas.length,
+          itemBuilder: (context, index) {
+            if (widget.cargas.isEmpty) {
+              return Center(child: Text("No hay cargas agregadas"));
+            }
+            return CargaDisplay(carga: widget.cargas[index]);
+          },
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => print("ola"),
+          onPressed: widget.onFABPressed,
           child: const Icon(Icons.add),
         ),
       )

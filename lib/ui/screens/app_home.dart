@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:simulador_cargas/domain/carga.dart';
+import 'package:simulador_cargas/domain/vector.dart';
 import 'package:simulador_cargas/ui/components/divisor_horizontal.dart';
 import 'package:simulador_cargas/ui/panels/panel_cargas.dart';
 
@@ -17,6 +19,14 @@ class _AppHomeState extends State<AppHome>{
 
   double _fracIzquierda = _fracMin;
 
+  List<Carga> cargas = [];
+
+  void agregarCarga(Carga carga) {
+    setState(() {
+      cargas.add(carga);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -29,7 +39,10 @@ class _AppHomeState extends State<AppHome>{
         children: [
           SizedBox(
             width: tamanoIzq,
-            child: PanelCargas(),
+            child: PanelCargas(
+                cargas: cargas,
+                onFABPressed: () => agregarCarga(Carga(1, Vector(0,0), 2, 0, "carga1")),
+            ),
           ),
           DivisorHorizontal(
             width: _tamanoDivisor,
