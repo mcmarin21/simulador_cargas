@@ -31,26 +31,19 @@ class _AppHomeState extends State<AppHome> {
 
       return Scaffold(
         appBar: AppBar(
-          title: const Text("Simulador de Cargas"),
           actions: [
             Row(
               children: [
                 const Text("1D", style: TextStyle(fontWeight: FontWeight.bold)),
                 Switch(
-                  value: esModo2D,
-                  activeColor: Colors.greenAccent,
-                  onChanged: (valor) {
-                    setState(() {
-                      esModo2D = valor;
-                      // Si pasamos a 1D, forzamos a todas las cargas existentes a Y = 0
-                      if (!esModo2D) {
-                        for (var c in cargas) {
-                          c.pos.y = 0;
-                        }
-                      }
-                    });
-                  },
-                ),
+  value: esModo2D,
+  activeColor: Colors.blueAccent,
+  onChanged: (valor) {
+    setState(() {
+      esModo2D = valor; // Alterna el modo y Flutter redibuja todo automáticamente respetando las posiciones originales
+    });
+  },
+),
                 const Text("2D", style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(width: 20),
               ],
@@ -84,94 +77,106 @@ class _AppHomeState extends State<AppHome> {
             ),
 
             // LADO DERECHO: PLANO 1D/2D
-            Expanded(
-              child: DragTarget<Carga>(
-                onWillAcceptWithDetails: (details) => true,
-                onAcceptWithDetails: (details) {
-  final renderBox = context.findRenderObject() as RenderBox;
-  final posicionLocal = renderBox.globalToLocal(details.offset);
+            Expanded( 
+  child: LayoutBuilder(
+    builder: (context, constraintsDerecha) {
+      // 1. Ahora calculamos los centros basados ÚNICAMENTE en el espacio de dibujo
+      final centroX = constraintsDerecha.maxWidth / 2;
+      final centroY = constraintsDerecha.maxHeight / 2;
 
-  setState(() {
-    final centroX = (tamMax - tamanoIzq - _tamanoDivisor) / 2;
-    final centroY = constraints.maxHeight / 2;
+      return DragTarget<Carga>(
+        onWillAcceptWithDetails: (details) => true,
+        onAcceptWithDetails: (details) {
+          final renderBox = context.findRenderObject() as RenderBox;
+          final posicionLocal = renderBox.globalToLocal(details.offset);
 
-    int indexReal = cargas.indexWhere((c) => c.id == details.data.id);
-    if (indexReal != -1) {
-      // 1. Calculamos la distancia en píxeles desde el centro (restando 18 por el radio de la esfera)
-      double pixelesX = posicionLocal.dx - tamanoIzq - _tamanoDivisor - centroX + 18;
-      double pixelesY = posicionLocal.dy - centroY + 18;
-      
-      // 2. Convertimos a unidades matemáticas (-10 a 10) dividiendo entre nuestra escala (40.0)
-      cargas[indexReal].pos.x = (pixelesX / 40.0).clamp(-10.0, 10.0);
-      
-      // En Y, como el plano físico es invertido a la pantalla (positivo arriba), usamos el signo menos
-      cargas[indexReal].pos.y = esModo2D ? (-(pixelesY / 40.0)).clamp(-10.0, 10.0) : 0.0; 
-    }
-  });
-},
-                builder: (context, candidateData, rejectedData) {
-                  return Container(
-                    color: Colors.grey[950],
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: CustomPaint(
-                            painter: SimuladorPainter(
-                              cargas: cargas,
-                              cargaSeleccionada: _cargaSeleccionada,
-                              esModo2D: esModo2D, // Pasamos la variable al dibujante
-                            ),
-                          ),
-                        ),
-                        
-                        // Aquí va tu ...cargas.map para pintar las esferas
+          setState(() {
+            int indexReal = cargas.indexWhere((c) => c.id == details.data.id);
+            if (indexReal != -1) {
+              double centroEsferaX = posicionLocal.dx + 18;
+              double centroEsferaY = posicionLocal.dy + 18;
+              
+              double pixelesX = centroEsferaX - centroX;
+              double pixelesY = centroEsferaY - centroY;
+              
+              double valorXCrudo = pixelesX / 40.0;
+              double valorYCrudo = -(pixelesY / 40.0); 
 
-                        ...cargas.map((c) {
-              bool seleccionada = _cargaSeleccionada?.id == c.id;
-              Color colorC = c.magnitud > 0 ? Colors.red : Colors.blue;
-
-              // Multiplicamos la coordenada matemática por 40.0 para saber cuántos píxeles pintarlo en pantalla
-              double posicionPantallaX = (tamanoDer / 2) + (c.pos.x * 40.0) - 18;
-              // Restamos en Y porque los valores positivos van hacia el extremo superior de la pantalla
-              double posicionPantallaY = (constraints.maxHeight / 2) - (c.pos.y * 40.0) - 18;
-
-              return Positioned(
-                key: ValueKey(c.id),
-                left: posicionPantallaX,
-                top: posicionPantallaY,
-                child: Draggable<Carga>(
-                  data: c,
-                  feedback: CircleAvatar(radius: 18, backgroundColor: colorC.withOpacity(0.7)),
-                  childWhenDragging: const SizedBox.shrink(),
-                  child: GestureDetector(
-                    onTap: () => setState(() => _cargaSeleccionada = seleccionada ? null : c),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: seleccionada ? Colors.greenAccent : Colors.white, 
-                          width: seleccionada ? 3 : 1
-                        ),
-                      ),
-                      child: CircleAvatar(
-                        radius: 18,
-                        backgroundColor: colorC,
-                        child: Text(
-                          c.magnitud > 0 ? "+" : "-", 
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
-                        ),
-                      ),
+              cargas[indexReal].pos.x = valorXCrudo.roundToDouble().clamp(-10.0, 10.0);
+              cargas[indexReal].pos.y = esModo2D ? valorYCrudo.roundToDouble().clamp(-10.0, 10.0) : 0.0; 
+            }
+          });
+        },
+        builder: (context, candidateData, rejectedData) {
+          return Container(
+            color: Colors.grey[950],
+            child: Stack(
+              children: [
+                // Fondo del Plano/Regla
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: SimuladorPainter(
+                      cargas: cargas,
+                      cargaSeleccionada: _cargaSeleccionada,
+                      esModo2D: esModo2D,
                     ),
                   ),
                 ),
-              );
-            }),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                // Renderizado de las cargas (Esferas)
+                ...cargas.map((c) {
+  bool seleccionada = _cargaSeleccionada?.id == c.id;
+  Color colorC = c.magnitud > 0 ? Colors.red : Colors.blue;
+
+  // La posición X siempre se mapea igual utilizando nuestra escala de 40.0 píxeles
+  double posicionPantallaX = centroX + (c.pos.x * 40.0) - 18;
+  
+  // --- AQUÍ ESTÁ EL TRUCO PARA EL RETORNO DE MODO ---
+  // Si estamos en modo 2D, usamos el valor 'y' real ingresado en el teclado.
+  // Si estamos en modo 1D, forzamos visualmente que se dibuje sobre la regla (0.0 unidades matemáticas).
+  double coordenadaYMatematica = esModo2D ? c.pos.y : 0.0;
+  
+  // Convertimos esa coordenada matemática a píxeles de pantalla reales invertidos
+  double posicionPantallaY = centroY - (coordenadaYMatematica * 40.0) - 18;
+
+  return Positioned(
+    key: ValueKey(c.id),
+    left: posicionPantallaX,
+    top: posicionPantallaY,
+    child: Draggable<Carga>(
+      data: c,
+      feedback: CircleAvatar(radius: 18, backgroundColor: colorC.withOpacity(0.7)),
+      childWhenDragging: const SizedBox.shrink(),
+      child: GestureDetector(
+        onTap: () => setState(() => _cargaSeleccionada = seleccionada ? null : c),
+        child: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: seleccionada ? Colors.greenAccent : Colors.white, 
+              width: seleccionada ? 3 : 1
             ),
+          ),
+          child: CircleAvatar(
+            radius: 18,
+            backgroundColor: colorC,
+            child: Text(
+              c.magnitud > 0 ? "+" : "-", 
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}),
+              ],
+            ),
+          );
+        },
+      );
+    }
+  ),
+),
           ],
         ),
       );

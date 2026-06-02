@@ -88,27 +88,32 @@ class SimuladorPainter extends CustomPainter {
       }
 
       if (fNetaX.isFinite && fNetaY.isFinite && (fNetaX.abs() > 0.001 || fNetaY.abs() > 0.001)) {
-        double mag = sqrt(fNetaX * fNetaX + fNetaY * fNetaY);
-        double escalaFuerza = 60.0; 
-        double lx = (fNetaX / mag) * escalaFuerza;
-        // Invertimos la componente visual Y porque en Flutter la pantalla crece hacia abajo
-        double ly = -(fNetaY / mag) * escalaFuerza; 
+  double mag = sqrt(fNetaX * fNetaX + fNetaY * fNetaY);
+  double escalaFuerza = 60.0; 
+  
+  double lx = (fNetaX / mag) * escalaFuerza;
+  
+  // SI ESTAMOS EN MODO 1D, LA FUERZA VISUAL VERTICAL DEBE SER CERO PARA NO INCLINAR EL VECTOR
+  double ly = esModo2D ? (-(fNetaY / mag) * escalaFuerza) : 0.0; 
 
-        double origenX = centroX + (cargaSeleccionada!.pos.x * escalaRegla);
-        double origenY = centroY - (cargaSeleccionada!.pos.y * escalaRegla);
+  double origenX = centroX + (cargaSeleccionada!.pos.x * escalaRegla);
+  
+  // Ajustamos el origen de la flecha dependiendo del modo
+  double coordenadaYOrigen = esModo2D ? cargaSeleccionada!.pos.y : 0.0;
+  double origenY = centroY - (coordenadaYOrigen * escalaRegla);
 
-        final pincelFuerzaNeta = Paint()
-          ..color = Colors.greenAccent
-          ..strokeWidth = 3.0;
+  final pincelFuerzaNeta = Paint()
+    ..color = Colors.greenAccent
+    ..strokeWidth = 3.0;
 
-        canvas.drawLine(
-          Offset(origenX, origenY),
-          Offset(origenX + lx, origenY + ly),
-          pincelFuerzaNeta,
-        );
-        
-        canvas.drawCircle(Offset(origenX + lx, origenY + ly), 4.0, pincelFuerzaNeta..style = PaintingStyle.fill);
-      }
+  canvas.drawLine(
+    Offset(origenX, origenY),
+    Offset(origenX + lx, origenY + ly),
+    pincelFuerzaNeta,
+  );
+  
+  canvas.drawCircle(Offset(origenX + lx, origenY + ly), 4.0, pincelFuerzaNeta..style = PaintingStyle.fill);
+}
     }
   }
 
