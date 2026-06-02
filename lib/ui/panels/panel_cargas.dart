@@ -141,7 +141,10 @@ class _PanelCargasState extends State<PanelCargas> {
                     const SizedBox(height: 8),
 
                     // Tu CargaDisplay que ya tiene la lógica de cambiar de color sola
-                    CargaDisplay(carga: cargaNuevaPreview),
+                    CargaDisplay(
+                      carga: cargaNuevaPreview,
+                      mostrarAcciones: false,
+                    ),
                   ],
                 ),
               ),
@@ -206,7 +209,10 @@ class _PanelCargasState extends State<PanelCargas> {
                   if (widget.cargas.isEmpty) {
                     return const Center(child: Text("No hay cargas agregadas"));
                   }
-                  return CargaDisplay(carga: widget.cargas[index]);
+                  return CargaDisplay(
+                      carga: widget.cargas[index],
+                      mostrarAcciones: true,
+                  );
                 },
               ),
             ),
