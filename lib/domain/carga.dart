@@ -1,9 +1,10 @@
+import 'package:simulador_cargas/domain/posicion.dart';
+
 class Carga {
-  double posX = 0;
-  double posY = 0;
+  Posicion pos;
   double magnitud = 0;
   int? prefijo;
 
-  Carga(this.posX, this.posY, this.magnitud, [this.prefijo]);
+  Carga(this.pos, this.magnitud, [this.prefijo]);
 
 }
