@@ -4,9 +4,9 @@ import 'dart:math';
 class Carga {
   int id = 0;
   Vector pos;
-  double magnitud = 0;
-  int prefijo = 0;
-  String nombre = "Carga";
+  final String nombre;
+  final double magnitud; // o int, según lo hayas definido
+  final int prefijo;
 
   Carga(this.id, this.pos, this.magnitud, this.prefijo, this.nombre);
 

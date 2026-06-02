@@ -18,6 +18,15 @@ class PanelCargas extends StatefulWidget {
 }
 
 class _PanelCargasState extends State<PanelCargas> {
+
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void _mostrarVentanaConfiguracion() {
     final nombreCtrl = TextEditingController(text: "Q${widget.cargas.length + 1}");
     final magnitudCtrl = TextEditingController(text: "1.0");
@@ -114,18 +123,36 @@ class _PanelCargasState extends State<PanelCargas> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Menú de Cargas'),
+        title: const Text('Simulador de cargas'),
       ),
-      body: widget.cargas.isEmpty
-          ? const Center(child: Text("No hay cargas agregadas"))
-          : ListView.builder(
-              itemCount: widget.cargas.length,
-              itemBuilder: (context, index) {
-                return CargaDisplay(carga: widget.cargas[index]);
-              },
+      body: Scrollbar(
+        controller: _scrollController,
+        child: Padding(
+          padding: EdgeInsetsGeometry.fromLTRB(12, 0, 20, 0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32), bottom: Radius.zero),
+            clipBehavior: Clip.antiAlias,
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: widget.cargas.isEmpty ? 1 : widget.cargas.length,
+                itemBuilder: (context, index) {
+                  if (widget.cargas.isEmpty) {
+                    return const Center(child: Text("No hay cargas agregadas"));
+                  }
+                  return CargaDisplay(
+                      carga: widget.cargas[index],
+                      mostrarAcciones: true,
+                  );
+                },
+              ),
             ),
+          ),
+        )
+      ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _mostrarVentanaConfiguracion,
+        onPressed: () => _mostrarVentanaConfiguracion(),
         child: const Icon(Icons.add),
       ),
     );
