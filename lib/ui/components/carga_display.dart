@@ -18,31 +18,18 @@ class CargaDisplay extends StatelessWidget {
     if (carga.magnitud > 0) {
       icono = Icons.add_circle_outline_rounded;
       colorTematico = Colors.redAccent;
-      tipoTexto = "Positiva";
     } else if (carga.magnitud < 0) {
       icono = Icons.remove_circle_outline_rounded;
       colorTematico = Colors.blueAccent;
-      tipoTexto = "Negativa";
+    }
+    else if(carga.magnitud == 0){
+      icono = Icons.circle_outlined;
+      colorTematico = Colors.grey;
     }
 
-    // 2. Evaluamos si ya está en el plano o sigue en la barra (asumiendo 0,0 como origen del panel)
-    bool estaEnPlano = (carga.pos.x != 0 || carga.pos.y != 0);
-
-    // 3. Rediseñamos la tarjeta con todos sus metadatos físicos internos
-    Widget tarjetaCarga = Card(
-      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-      elevation: estaEnPlano
-          ? 1
-          : 4, // Menor relieve visual si ya está en el plano
+    return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        // Si está en el plano, le encendemos un borde reactivo del color de la carga
-        side: BorderSide(
-          color: estaEnPlano
-              ? colorTematico.withOpacity(0.6)
-              : Colors.transparent,
-          width: estaEnPlano ? 2 : 0,
-        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(14.0),
@@ -60,58 +47,22 @@ class CargaDisplay extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // Renglón superior: Nombre + Chip de Estado dinámico
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        carga.nombre,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-
-                      // Pequeño indicador del estado de arrastre
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: estaEnPlano
-                              ? Colors.green.withOpacity(0.1)
-                              : Colors.amber.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          estaEnPlano ? "En plano" : "En barra",
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: estaEnPlano
-                                ? Colors.green
-                                : Colors.amber[800],
-                          ),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    carga.nombre,
+                    style: TextTheme.of(context).titleMedium,
                   ),
-                  const SizedBox(height: 4),
 
                   // Renglón medio: Valor con notación científica estilizada (Ej: 5.0 × 10^-6 C)
                   Text(
                     "Valor: ${carga.magnitud} × 10^${carga.prefijo} C",
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: TextTheme.of(context).bodyMedium,
                   ),
                   const SizedBox(height: 2),
 
                   // Renglón inferior: Coordenadas físicas reales y tipo de carga
                   Text(
-                    "Tipo: $tipoTexto | Pos: (${carga.pos.x.toStringAsFixed(0)}, ${carga.pos.y.toStringAsFixed(0)})",
-                    style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                    "Pos: (${carga.pos.x.toStringAsFixed(0)}, ${carga.pos.y.toStringAsFixed(0)})",
+                    style: TextTheme.of(context).bodySmall,
                   ),
                 ],
               ),
@@ -119,28 +70,6 @@ class CargaDisplay extends StatelessWidget {
           ],
         ),
       ),
-    );
-
-    // 4. Mantenemos tu excelente estructura del Draggable intacta
-    return Draggable<Carga>(
-      data: carga, // El objeto viaja al soltarlo en el DragTarget
-      feedback: Material(
-        color: Colors.transparent,
-        child: Opacity(
-          opacity: 0.75, // Semi-transparente al vuelo
-          child: SizedBox(
-            width:
-                250, // Forzamos un ancho controlado para que no colapse al arrastrar
-            child: tarjetaCarga,
-          ),
-        ),
-      ),
-      childWhenDragging: Opacity(
-        opacity:
-            0.3, // Opaca el objeto en la barra lateral mientras se arrastra
-        child: tarjetaCarga,
-      ),
-      child: tarjetaCarga, // Aspecto normal en la lista
     );
   }
 }
