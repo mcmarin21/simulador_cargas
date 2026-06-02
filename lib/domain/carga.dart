@@ -1,7 +1,7 @@
-import 'package:simulador_cargas/domain/posicion.dart';
+import 'package:simulador_cargas/domain/vector.dart';
 
 class Carga {
-  Posicion pos;
+  Vector pos;
   double magnitud = 0;
   int? prefijo;
 
