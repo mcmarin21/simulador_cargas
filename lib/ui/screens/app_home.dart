@@ -26,17 +26,7 @@ class _AppHomeState extends State<AppHome>{
       var tamanoIzq = (tamMax - _tamanoDivisor) * _fracIzquierda;
       var tamanoDer = tamMax - _tamanoDivisor - tamanoIzq;
 
-      return Scaffold(
-        appBar: AppBar(
-          backgroundColor: AppColors.fondo,
-          actions: [
-            IconButton(onPressed:(){Navigator.pop(context);}
-            , icon: Image.asset("assets/images/flecha.png")
-            )
-          ],
-        ),
-body: 
-        Row(
+      return Row(
           children: [
             SizedBox(
               width: tamanoIzq,
@@ -55,7 +45,6 @@ body:
               width: tamanoDer,
             ),
           ],
-        ),
       );
     });
   }
