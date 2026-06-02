@@ -26,9 +26,9 @@ class CargaDisplay extends StatelessWidget {
 
     return Card(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(4),
       ),
-      margin: EdgeInsetsGeometry.symmetric(vertical: 6, horizontal: 0),
+      margin: EdgeInsetsGeometry.symmetric(vertical: 2, horizontal: 0),
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         child: Row(

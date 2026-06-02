@@ -193,9 +193,10 @@ class _PanelCargasState extends State<PanelCargas> {
       body: Scrollbar(
         controller: _scrollController,
         child: Padding(
-          padding: EdgeInsetsGeometry.fromLTRB(24, 32, 24, 0),
+          padding: EdgeInsetsGeometry.fromLTRB(12, 0, 20, 0),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32), bottom: Radius.zero),
+            clipBehavior: Clip.antiAlias,
             child: ScrollConfiguration(
               behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
               child: ListView.builder(
