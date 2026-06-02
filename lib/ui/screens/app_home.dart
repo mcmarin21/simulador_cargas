@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+//import 'package:simulador_cargas/core/app_colors.dart';
+import 'package:simulador_cargas/domain/carga.dart';
+import 'package:simulador_cargas/domain/vector.dart';
 import 'package:simulador_cargas/ui/components/divisor_horizontal.dart';
 import 'package:simulador_cargas/ui/panels/panel_cargas.dart';
 
@@ -17,6 +20,14 @@ class _AppHomeState extends State<AppHome>{
 
   double _fracIzquierda = _fracMin;
 
+  List<Carga> cargas = [];
+
+  void agregarCarga(Carga carga) {
+    setState(() {
+      cargas.add(carga);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -25,25 +36,29 @@ class _AppHomeState extends State<AppHome>{
       var tamanoIzq = (tamMax - _tamanoDivisor) * _fracIzquierda;
       var tamanoDer = tamMax - _tamanoDivisor - tamanoIzq;
 
-      return Row(
-        children: [
-          SizedBox(
-            width: tamanoIzq,
-            child: PanelCargas(),
-          ),
-          DivisorHorizontal(
-            width: _tamanoDivisor,
-            onDragUpdate: (details) {
-              setState(() {
-                final delta = details.delta.dx / tamMax;
-                _fracIzquierda = (_fracIzquierda + delta).clamp(_fracMin, 1 - _fracMin,);
-              });
-            },
-          ),
-          SizedBox(
-            width: tamanoDer,
-          ),
-        ],
+      return Scaffold(
+body: 
+        Row(
+          children: [
+            SizedBox(
+              width: tamanoIzq,
+              child: PanelCargas(cargas: cargas,
+                onFABPressed: () => agregarCarga(Carga(1, Vector(0,0), 2, 0, "carga1")),),
+            ),
+            DivisorHorizontal(
+              width: _tamanoDivisor,
+              onDragUpdate: (details) {
+                setState(() {
+                  final delta = details.delta.dx / tamMax;
+                  _fracIzquierda = (_fracIzquierda + delta).clamp(_fracMin, 1 - _fracMin,);
+                });
+              },
+            ),
+            SizedBox(
+              width: tamanoDer,
+            ),
+          ],
+        ),
       );
     });
   }
