@@ -26,18 +26,23 @@ class Inicio extends StatefulWidget {
 class _InicioState extends State<Inicio> {
   @override
   Widget build(BuildContext context) {
+
+
+  final double screenHeight = MediaQuery.of(context).size.height;
+  final double screenwidth = MediaQuery.of(context).size.width;
+
+
     return Scaffold(
       backgroundColor: AppColors.fondo,
         body: Stack(
-          children: [
-            responsiveBox(
-                widthFactor: 0.3,
-                heightFactor: 0.3,
-              child: Center(
+          children: [   
+           Positioned(
+                top: screenHeight * 0.5,
+                right:screenwidth * 0.5,
                 child: 
-                Image.asset("assets/images/Inicio.gif")
+                Image.asset("assets/images/Inicio.gif", height: screenwidth * 0.3,
+                width: screenwidth * 0.3)
               ),
-            )
           ],
         ),
     );
