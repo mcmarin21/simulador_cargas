@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../domain/carga.dart';
@@ -126,7 +125,7 @@ class _PanelViewportState extends State<PanelViewport>{
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                   color: seleccionada
-                                      ? Colors.greenAccent
+                                      ? Theme.of(context).colorScheme.secondary
                                       : Colors.white,
                                   width: seleccionada ? 3 : 1,
                                 ),
