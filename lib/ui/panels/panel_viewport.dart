@@ -7,10 +7,12 @@ class PanelViewport extends StatefulWidget{
 
   final List<Carga> cargas;
   final bool modo2D;
+  final ValueChanged<List<Carga>> onCargasChanged;
 
   const PanelViewport({
     required this.cargas,
     required this.modo2D,
+    required this.onCargasChanged,
     super.key,
   });
 
@@ -60,6 +62,7 @@ class _PanelViewportState extends State<PanelViewport>{
                   widget.cargas[indexReal].pos.y = widget.modo2D
                       ? valorYCrudo.roundToDouble().clamp(-10.0, 10.0)
                       : 0.0;
+                  widget.onCargasChanged(List.from(widget.cargas));
                 }
               });
             },

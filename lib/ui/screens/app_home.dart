@@ -86,7 +86,13 @@ class _AppHomeState extends State<AppHome> {
                 },
               ),
 
-              PanelViewport(cargas: cargas, modo2D: esModo2D),
+              PanelViewport(
+                cargas: cargas,
+                modo2D: esModo2D,
+                onCargasChanged: (nuevasCargas) {
+                  setState(() => cargas = nuevasCargas);
+                },
+              ),
             ],
           ),
         );
