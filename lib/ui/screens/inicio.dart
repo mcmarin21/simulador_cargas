@@ -20,7 +20,7 @@ class _InicioState extends State<Inicio> {
       body: Stack(
         children: [
           Positioned(
-            bottom: 0,
+            bottom: screenHeight - (screenwidth * 0.75),
             right: screenwidth * 0.4,
             child: Image.asset(
               "assets/images/Inicio.gif",
