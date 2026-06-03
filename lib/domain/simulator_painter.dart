@@ -22,6 +22,7 @@ class SimuladorPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
     final centro = Offset(
       size.width / 2 + origen.dx,
       size.height / 2 + origen.dy,
