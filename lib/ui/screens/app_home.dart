@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:simulador_cargas/domain/carga.dart';
-import 'package:simulador_cargas/domain/simulator_painter.dart';
 import 'package:simulador_cargas/ui/panels/panel_cargas.dart';
 import 'package:simulador_cargas/ui/components/divisor_horizontal.dart';
 import 'package:simulador_cargas/ui/panels/panel_viewport.dart';
@@ -28,7 +27,6 @@ class _AppHomeState extends State<AppHome> {
       builder: (context, constraints) {
         final tamMax = constraints.maxWidth;
         var tamanoIzq = (tamMax - _tamanoDivisor) * _fracIzquierda;
-        var tamanoDer = tamMax - _tamanoDivisor - tamanoIzq;
 
         return Row(
           children: [

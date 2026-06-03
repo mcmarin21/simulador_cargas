@@ -25,7 +25,6 @@ class PanelViewport extends StatefulWidget{
 
 class _PanelViewportState extends State<PanelViewport>{
 
-  Carga? _cargaSeleccionada;
   double _escala = 40.0;
   Offset _origen = Offset.zero;
   Size _canvasSize = Size.zero;
