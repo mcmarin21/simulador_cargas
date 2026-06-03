@@ -29,7 +29,6 @@ class _PanelViewportState extends State<PanelViewport> {
   Size _canvasSize = Size.zero;
   Offset _focalPointStart = Offset.zero;
   Offset _origenAlIniciar = Offset.zero;
-  double _escalaAlIniciar = 40.0;
   double _lastEscala = 1.0;
 
   /// Índice de la carga que se está arrastrando actualmente (-1 = ninguna).
@@ -112,7 +111,6 @@ class _PanelViewportState extends State<PanelViewport> {
                       setState(() => _selectedIndex = -1);
                       _focalPointStart = details.localFocalPoint;
                       _origenAlIniciar = _origen;
-                      _escalaAlIniciar = _escala;
                     }
                   },
                   onScaleUpdate: (details) {
