@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:simulador_cargas/domain/carga.dart';
+import 'package:simulador_cargas/util/util.dart';
 
 class CargaDisplay extends StatefulWidget {
   final Carga carga;
@@ -70,7 +71,7 @@ class _CargaDisplayState extends State<CargaDisplay> {
                     ),
 
                     Text(
-                      "Valor: ${widget.carga.magnitud} × 10^${widget.carga.prefijo} C",
+                      "Valor: ${widget.carga.magnitud} ${prefixLabel(widget.carga.prefijo)} C",
                       style: TextTheme.of(context).bodyMedium,
                     ),
                     const SizedBox(height: 2),

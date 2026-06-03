@@ -1,11 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:simulador_cargas/util/util.dart';
 
 import '../../domain/carga.dart';
 import '../../domain/simulator_painter.dart';
 
-class PanelViewport extends StatefulWidget{
-
+class PanelViewport extends StatefulWidget {
   final List<Carga> cargas;
   final bool modo2D;
   final ValueChanged<List<Carga>> onCargasChanged;
@@ -23,8 +23,7 @@ class PanelViewport extends StatefulWidget{
   State createState() => _PanelViewportState();
 }
 
-class _PanelViewportState extends State<PanelViewport>{
-
+class _PanelViewportState extends State<PanelViewport> {
   double _escala = 40.0;
   Offset _origen = Offset.zero;
   Size _canvasSize = Size.zero;
@@ -32,7 +31,12 @@ class _PanelViewportState extends State<PanelViewport>{
   Offset _origenAlIniciar = Offset.zero;
   double _escalaAlIniciar = 40.0;
   double _lastEscala = 1.0;
+
+  /// Índice de la carga que se está arrastrando actualmente (-1 = ninguna).
   int _draggingIndex = -1;
+
+  /// Índice de la carga seleccionada (persiste tras soltar el dedo / ratón).
+  int _selectedIndex = -1;
 
   Offset _toMath(Offset tap, Size size) {
     final cx = size.width / 2 + _origen.dx;
@@ -50,7 +54,8 @@ class _PanelViewportState extends State<PanelViewport>{
       final dist = widget.modo2D
           ? (localPosition - target).distance
           : (localPosition.dx - target.dx).abs();
-      if (dist < 8) return i;
+      // Radio de hit un poco mayor para facilitar la selección en móvil
+      if (dist < 14) return i;
     }
     return -1;
   }
@@ -99,7 +104,12 @@ class _PanelViewportState extends State<PanelViewport>{
                     _draggingIndex = hit;
                     _lastEscala = 1.0;
 
-                    if (hit == -1) {
+                    if (hit >= 0) {
+                      // Seleccionar la carga tocada
+                      setState(() => _selectedIndex = hit);
+                    } else {
+                      // Tap en espacio vacío → deseleccionar y preparar pan/zoom
+                      setState(() => _selectedIndex = -1);
                       _focalPointStart = details.localFocalPoint;
                       _origenAlIniciar = _origen;
                       _escalaAlIniciar = _escala;
@@ -110,7 +120,6 @@ class _PanelViewportState extends State<PanelViewport>{
                       if (_draggingIndex >= 0) {
                         final math = _toMath(details.localFocalPoint, _canvasSize);
                         final c = widget.cargas[_draggingIndex];
-
                         widget.cargas[_draggingIndex].pos = widget.modo2D
                             ? math
                             : Offset(math.dx, c.pos.dy);
@@ -121,14 +130,24 @@ class _PanelViewportState extends State<PanelViewport>{
                         final newEscala = (_escala * ratio).clamp(10.0, 150.0);
 
                         final pan = details.localFocalPoint - _focalPointStart;
-                        final cx = _canvasSize.width  / 2 + _origenAlIniciar.dx + pan.dx;
-                        final cy = _canvasSize.height / 2 + _origenAlIniciar.dy + pan.dy;
-                        final mathX = (details.localFocalPoint.dx - cx) / _escala;
-                        final mathY = (cy - details.localFocalPoint.dy) / _escala;
+                        final cx = _canvasSize.width / 2 +
+                            _origenAlIniciar.dx +
+                            pan.dx;
+                        final cy = _canvasSize.height / 2 +
+                            _origenAlIniciar.dy +
+                            pan.dy;
+                        final mathX =
+                            (details.localFocalPoint.dx - cx) / _escala;
+                        final mathY =
+                            (cy - details.localFocalPoint.dy) / _escala;
 
                         _origen = Offset(
-                          details.localFocalPoint.dx - _canvasSize.width  / 2 - mathX * newEscala,
-                          details.localFocalPoint.dy - _canvasSize.height / 2 + mathY * newEscala,
+                          details.localFocalPoint.dx -
+                              _canvasSize.width / 2 -
+                              mathX * newEscala,
+                          details.localFocalPoint.dy -
+                              _canvasSize.height / 2 +
+                              mathY * newEscala,
                         );
                         _escala = newEscala;
                       }
@@ -137,37 +156,96 @@ class _PanelViewportState extends State<PanelViewport>{
                   onScaleEnd: (_) => _draggingIndex = -1,
                   child: CustomPaint(
                     painter: SimuladorPainter(
-                        cargas: widget.cargas,
-                        escala: _escala,
-                        origen: _origen,
-                        esModo2D: widget.modo2D,
-                        indexSeleccionada: _draggingIndex,
-                        colorScheme: Theme.of(context).colorScheme
+                      cargas: widget.cargas,
+                      escala: _escala,
+                      origen: _origen,
+                      esModo2D: widget.modo2D,
+                      // Usa el índice seleccionado persistente
+                      indexSeleccionada: _selectedIndex,
+                      colorScheme: Theme.of(context).colorScheme,
                     ),
                     size: _canvasSize,
-                  )
+                  ),
                 ),
 
+                // Botón 1D / 2D
                 Positioned(
                   top: 12,
                   right: 12,
                   child: TextButton(
                     onPressed: widget.onDimensionChange,
                     style: TextButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                      foregroundColor:
+                      Theme.of(context).colorScheme.onPrimaryContainer,
+                      backgroundColor:
+                      Theme.of(context).colorScheme.primaryContainer,
                     ),
                     child: Text(
                       widget.modo2D ? "1D" : "2D",
                       style: TextTheme.of(context).titleMedium,
                     ),
                   ),
-                )
+                ),
+
+                // Indicador textual de la carga seleccionada (esquina inferior)
+                if (_selectedIndex >= 0 &&
+                    _selectedIndex < widget.cargas.length)
+                  Positioned(
+                    bottom: 12,
+                    left: 12,
+                    child: _SelectedChargeChip(
+                      carga: widget.cargas[_selectedIndex],
+                      onDismiss: () => setState(() => _selectedIndex = -1),
+                    ),
+                  ),
               ],
-            )
+            ),
           );
         },
       ),
     );
   }
+}
+
+// ─── chip informativo ────────────────────────────────────────────────────────
+
+class _SelectedChargeChip extends StatelessWidget {
+  final Carga carga;
+  final VoidCallback onDismiss;
+
+  const _SelectedChargeChip({required this.carga, required this.onDismiss});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final prefixStr = prefixLabel(carga.prefijo);
+    return Material(
+      color: cs.surfaceContainerHigh,
+      borderRadius: BorderRadius.circular(8),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.electric_bolt,
+                size: 14,
+                color: carga.magnitud >= 0 ? Colors.red : Colors.blue),
+            const SizedBox(width: 4),
+            Text(
+              '${carga.nombre}  ${carga.magnitud}$prefixStr C',
+              style: TextStyle(fontSize: 12, color: cs.onSurface),
+            ),
+            const SizedBox(width: 6),
+            GestureDetector(
+              onTap: onDismiss,
+              child: Icon(Icons.close, size: 14, color: cs.onSurfaceVariant),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
 }
