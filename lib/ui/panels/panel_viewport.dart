@@ -56,12 +56,11 @@ class _PanelViewportState extends State<PanelViewport>{
                   double valorXCrudo = pixelesX / 40.0;
                   double valorYCrudo = -(pixelesY / 40.0);
 
-                  widget.cargas[indexReal].pos.x = valorXCrudo
+                  widget.cargas[indexReal].pos = Offset(valorXCrudo
                       .roundToDouble()
-                      .clamp(-10.0, 10.0);
-                  widget.cargas[indexReal].pos.y = widget.modo2D
+                      .clamp(-10.0, 10.0), widget.modo2D
                       ? valorYCrudo.roundToDouble().clamp(-10.0, 10.0)
-                      : 0.0;
+                      : 0.0);
                   widget.onCargasChanged(List.from(widget.cargas));
                 }
               });
@@ -91,13 +90,13 @@ class _PanelViewportState extends State<PanelViewport>{
 
                       // La posición X siempre se mapea igual utilizando nuestra escala de 40.0 píxeles
                       double posicionPantallaX =
-                          centroX + (c.pos.x * 40.0) - 18;
+                          centroX + (c.pos.dx * 40.0) - 18;
 
                       // --- AQUÍ ESTÁ EL TRUCO PARA EL RETORNO DE MODO ---
                       // Si estamos en modo 2D, usamos el valor 'y' real ingresado en el teclado.
                       // Si estamos en modo 1D, forzamos visualmente que se dibuje sobre la regla (0.0 unidades matemáticas).
                       double coordenadaYMatematica = widget.modo2D
-                          ? c.pos.y
+                          ? c.pos.dy
                           : 0.0;
 
                       // Convertimos esa coordenada matemática a píxeles de pantalla reales invertidos

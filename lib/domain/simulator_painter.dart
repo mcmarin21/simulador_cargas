@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:simulador_cargas/domain/carga.dart';
-import 'package:simulador_cargas/domain/vector.dart';
 
 class SimuladorPainter extends CustomPainter {
   final List<Carga> cargas;
@@ -130,9 +129,9 @@ class SimuladorPainter extends CustomPainter {
 
       for (var otra in cargas) {
         if (otra.id != cargaSeleccionada!.id) {
-          Vector f = cargaSeleccionada!.calcularFuerza(otra);
-          fNetaX += f.x;
-          fNetaY += f.y;
+          Offset f = cargaSeleccionada!.calcularFuerza(otra);
+          fNetaX += f.dx;
+          fNetaY += f.dy;
         }
       }
 
@@ -147,10 +146,10 @@ class SimuladorPainter extends CustomPainter {
         // SI ESTAMOS EN MODO 1D, LA FUERZA VISUAL VERTICAL DEBE SER CERO PARA NO INCLINAR EL VECTOR
         double ly = esModo2D ? (-(fNetaY / mag) * escalaFuerza) : 0.0;
 
-        double origenX = centroX + (cargaSeleccionada!.pos.x * escalaRegla);
+        double origenX = centroX + (cargaSeleccionada!.pos.dx * escalaRegla);
 
         // Ajustamos el origen de la flecha dependiendo del modo
-        double coordenadaYOrigen = esModo2D ? cargaSeleccionada!.pos.y : 0.0;
+        double coordenadaYOrigen = esModo2D ? cargaSeleccionada!.pos.dy : 0.0;
         double origenY = centroY - (coordenadaYOrigen * escalaRegla);
 
         final pincelFuerzaNeta = Paint()

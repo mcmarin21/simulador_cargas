@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:simulador_cargas/domain/carga.dart';
-import 'package:simulador_cargas/domain/vector.dart';
 import 'package:simulador_cargas/ui/components/carga_display.dart';
 
 class PanelCargas extends StatefulWidget {
@@ -102,7 +101,7 @@ class _PanelCargasState extends State<PanelCargas> {
 
                 final nuevaCarga = Carga(
                   idUnico,
-                  Vector(pX, pY), // 3. ¡Se asigna directamente a la matemática!
+                  Offset(pX, pY), // 3. ¡Se asigna directamente a la matemática!
                   mag,
                   pref,
                   nombreCtrl.text,

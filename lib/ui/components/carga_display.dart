@@ -76,7 +76,7 @@ class _CargaDisplayState extends State<CargaDisplay> {
                     const SizedBox(height: 2),
 
                     Text(
-                      "Pos: (${widget.carga.pos.x.toStringAsFixed(0)}, ${widget.carga.pos.y.toStringAsFixed(0)})",
+                      "Pos: (${widget.carga.pos.dx.toStringAsFixed(0)}, ${widget.carga.pos.dy.toStringAsFixed(0)})",
                       style: TextTheme.of(context).bodySmall,
                     ),
                   ],
