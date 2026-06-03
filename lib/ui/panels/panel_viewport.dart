@@ -35,18 +35,6 @@ class _PanelViewportState extends State<PanelViewport>{
   double _lastEscala = 1.0;
   int _draggingIndex = -1;
 
-  Offset _pixelCoords(Offset tap) {
-    final cx = _canvasSize.width  / 2 + _origen.dx;
-    final cy = _canvasSize.height / 2 + _origen.dy;
-    return Offset((tap.dx - cx) / _escala, (cy - tap.dy) / _escala);
-  }
-
-  Offset _coordsPixel(Offset math){
-    final cx = _canvasSize.width  / 2 + _origen.dx;
-    final cy = _canvasSize.height / 2 + _origen.dy;
-    return Offset(cx + math.dx * _escala, cy - math.dy * _escala);
-  }
-
   Offset _toMath(Offset tap, Size size) {
     final cx = size.width / 2 + _origen.dx;
     final cy = size.height / 2 + _origen.dy;
@@ -60,7 +48,10 @@ class _PanelViewportState extends State<PanelViewport>{
       final px = cx + widget.cargas[i].pos.dx * _escala;
       final py = cy - widget.cargas[i].pos.dy * _escala;
       final target = widget.modo2D ? Offset(px, py) : Offset(px, cy);
-      if ((localPosition - target).distance < 8) return i;
+      final dist = widget.modo2D
+          ? (localPosition - target).distance
+          : (localPosition.dx - target.dx).abs();
+      if (dist < 8) return i;
     }
     return -1;
   }
