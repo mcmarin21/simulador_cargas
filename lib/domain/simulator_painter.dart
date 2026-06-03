@@ -157,27 +157,22 @@ class SimuladorPainter extends CustomPainter {
 
   void _drawCargas(Canvas canvas, Offset centro){
     for(final carga in cargas){
-      Paint colorPaint;
-      if(carga.magnitud > 0){
-        colorPaint = Paint()
-            ..color = Colors.red
-            ..style = PaintingStyle.fill;
-      }
-      else if(carga.magnitud < 0){
-        colorPaint = Paint()
-            ..color = Colors.blue
-            ..style = PaintingStyle.fill;
-      }
-      else{
-        colorPaint = Paint()
-          ..color = colorScheme.onSurface
-          ..style = PaintingStyle.fill;
-      }
+      final fillPaint = Paint()
+        ..color = carga.magnitud > 0 ? Colors.red : carga.magnitud < 0 ? Colors.blue : colorScheme.surface
+        ..style = PaintingStyle.fill;
+      final borderPaint = Paint()
+        ..color = carga.magnitud > 0 ? Colors.red : carga.magnitud < 0 ? Colors.blue : colorScheme.onSurface
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3;
       final px = centro.dx + carga.pos.dx * escala;
       final py = centro.dy - carga.pos.dy * escala;
       canvas.drawCircle(
           Offset(px, py), 7,
-          colorPaint
+          fillPaint
+      );
+      canvas.drawCircle(
+          Offset(px, py), 7,
+          borderPaint
       );
       _drawLabel(canvas, carga.nombre, Offset(px + 10, py - 16), TextStyle(
         color: colorScheme.onSurface,
