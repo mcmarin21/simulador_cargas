@@ -75,8 +75,11 @@ class _PanelViewportState extends State<PanelViewport>{
                       child: CustomPaint(
                         painter: SimuladorPainter(
                           cargas: widget.cargas,
-                          cargaSeleccionada: _cargaSeleccionada,
+                          escala: 40.0,
+                          indexSeleccionada: -1,
+                          origen: Offset(0, 0),
                           esModo2D: widget.modo2D,
+                          colorScheme: Theme.of(context).colorScheme,
                         ),
                       ),
                     ),

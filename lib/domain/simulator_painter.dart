@@ -4,173 +4,160 @@ import 'package:simulador_cargas/domain/carga.dart';
 
 class SimuladorPainter extends CustomPainter {
   final List<Carga> cargas;
-  final Carga? cargaSeleccionada;
+  final double escala;
+  final Offset origen;
   final bool esModo2D;
+  final int indexSeleccionada;
+  final ColorScheme colorScheme;
 
   SimuladorPainter({
     required this.cargas,
-    this.cargaSeleccionada,
+    required this.escala,
+    required this.origen,
     required this.esModo2D,
+    required this.indexSeleccionada,
+    required this.colorScheme,
+    super.repaint
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final centroX = size.width / 2;
-    final centroY = size.height / 2;
-
-    final paintEjes = Paint()
-      ..color = Colors.white30
-      ..strokeWidth = 1.5;
-    final paintRegla = Paint()
-      ..color = Colors.white60
-      ..strokeWidth = 2.0;
-
-    // Escala del simulador: 1 unidad matemática = 40 píxeles en pantalla
-    const double escalaRegla = 40.0;
+    final centro = Offset(
+      size.width / 2 + origen.dx,
+      size.height / 2 + origen.dy,
+    );
 
     if (esModo2D) {
-      // --- MODO 2D: Plano Cartesiano Completo ---
-      canvas.drawLine(
-        Offset(0, centroY),
-        Offset(size.width, centroY),
-        paintEjes,
-      );
-      canvas.drawLine(
-        Offset(centroX, 0),
-        Offset(centroX, size.height),
-        paintEjes,
-      );
-
-      // Dibujar marcas numéricas del -10 al 10 en ambos ejes
-      for (int i = -10; i <= 10; i++) {
-        if (i == 0) continue; // El origen central (0,0) no requiere doble texto
-
-        // MARCAS EN EJE X (Horizontal)
-        double posX = centroX + (i * escalaRegla);
-        canvas.drawLine(
-          Offset(posX, centroY - 5),
-          Offset(posX, centroY + 5),
-          paintRegla,
-        );
-
-        final textSpanX = TextSpan(
-          text: i.toString(),
-          style: const TextStyle(color: Colors.white70, fontSize: 10),
-        );
-        final textPainterX = TextPainter(
-          text: textSpanX,
-          textDirection: TextDirection.ltr,
-        )..layout();
-        textPainterX.paint(
-          canvas,
-          Offset(posX - (textPainterX.width / 2), centroY + 8),
-        );
-
-        // MARCAS EN EJE Y (Vertical) - Positivo hacia arriba
-        double posY = centroY - (i * escalaRegla);
-        canvas.drawLine(
-          Offset(centroX - 5, posY),
-          Offset(centroX + 5, posY),
-          paintRegla,
-        );
-
-        final textSpanY = TextSpan(
-          text: i.toString(),
-          style: const TextStyle(color: Colors.white70, fontSize: 10),
-        );
-        final textPainterY = TextPainter(
-          text: textSpanY,
-          textDirection: TextDirection.ltr,
-        )..layout();
-        // Colocamos el texto ligeramente a la izquierda del eje vertical
-        textPainterY.paint(
-          canvas,
-          Offset(
-            centroX - textPainterY.width - 8,
-            posY - (textPainterY.height / 2),
-          ),
-        );
-      }
+      _drawGrid(canvas, size, centro);
+      _drawAxes(canvas, size, centro);
+      // _drawPoints(canvas, centro);
     } else {
-      // --- MODO 1D: Regla Lineal Horizontal ---
-      canvas.drawLine(
-        Offset(0, centroY),
-        Offset(size.width, centroY),
-        paintRegla,
-      );
+      _drawNumberLine(canvas, size, centro);
+      // _drawPointsOn1D(canvas, size, center);
+    }
+  }
 
-      for (int i = -10; i <= 10; i++) {
-        double posX = centroX + (i * escalaRegla);
-        canvas.drawLine(
-          Offset(posX, centroY - 5),
-          Offset(posX, centroY + 5),
-          paintRegla,
-        );
+  void _drawGrid(Canvas canvas, Size size, Offset centro) {
+    final paint = Paint()
+      ..color = colorScheme.onSurface.withValues(alpha: 0.25)
+      ..strokeWidth = 0.5;
 
-        final textSpan = TextSpan(
-          text: i.toString(),
-          style: const TextStyle(color: Colors.white70, fontSize: 10),
-        );
-        final textPainter = TextPainter(
-          text: textSpan,
-          textDirection: TextDirection.ltr,
-        )..layout();
-        textPainter.paint(
-          canvas,
-          Offset(posX - (textPainter.width / 2), centroY + 10),
-        );
-      }
+    final firstCol = ((0 - centro.dx) / escala).floor();
+    final lastCol = ((size.width - centro.dx) / escala).ceil();
+
+    final firstRow = ((0 - centro.dy) / escala).floor();
+    final lastRow = ((size.height - centro.dy) / escala).ceil();
+
+    for (int i = firstCol; i <= lastCol; i++) {
+      final x = centro.dx + i * escala;
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
     }
 
-    // Lógica para dibujar el vector de Fuerza Neta
-    if (cargaSeleccionada != null && cargas.contains(cargaSeleccionada)) {
-      double fNetaX = 0.0;
-      double fNetaY = 0.0;
+    for (int j = firstRow; j <= lastRow; j++) {
+      final y = centro.dy + j * escala;
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
 
-      for (var otra in cargas) {
-        if (otra.id != cargaSeleccionada!.id) {
-          Offset f = cargaSeleccionada!.calcularFuerza(otra);
-          fNetaX += f.dx;
-          fNetaY += f.dy;
-        }
-      }
+  void _drawLabel(
+      Canvas canvas,
+      String text,
+      Offset position,
+      TextStyle style,
+      ) {
+    final textSpan = TextSpan(text: text, style: style);
+    final painter = TextPainter(text: textSpan, textDirection: TextDirection.ltr);
+    painter.layout();
+    painter.paint(canvas, position);
+  }
 
-      if (fNetaX.isFinite &&
-          fNetaY.isFinite &&
-          (fNetaX.abs() > 0.001 || fNetaY.abs() > 0.001)) {
-        double mag = sqrt(fNetaX * fNetaX + fNetaY * fNetaY);
-        double escalaFuerza = 60.0;
+  void _drawAxes(Canvas canvas, Size size, Offset center) {
+    final axisPaint = Paint()
+      ..color = colorScheme.onSurface
+      ..strokeWidth = 1.8;
 
-        double lx = (fNetaX / mag) * escalaFuerza;
+    canvas.drawLine(
+      Offset(0, center.dy),
+      Offset(size.width, center.dy),
+      axisPaint,
+    );
+    canvas.drawLine(
+      Offset(center.dx, 0),
+      Offset(center.dx, size.height),
+      axisPaint,
+    );
 
-        // SI ESTAMOS EN MODO 1D, LA FUERZA VISUAL VERTICAL DEBE SER CERO PARA NO INCLINAR EL VECTOR
-        double ly = esModo2D ? (-(fNetaY / mag) * escalaFuerza) : 0.0;
+    canvas.drawLine(
+      Offset(0, center.dy),
+      Offset(size.width, center.dy),
+      axisPaint,
+    );
+    canvas.drawLine(
+      Offset(center.dx, 0),
+      Offset(center.dx, size.height),
+      axisPaint,
+    );
 
-        double origenX = centroX + (cargaSeleccionada!.pos.dx * escalaRegla);
+    _drawLabel(
+      canvas,
+      'x',
+      Offset(size.width - 14, center.dy - 20),
+      const TextStyle(color: Colors.black54, fontSize: 12),
+    );
+    _drawLabel(
+      canvas,
+      'y',
+      Offset(center.dx - 12, 4),
+      const TextStyle(color: Colors.black54, fontSize: 12),
+    );
 
-        // Ajustamos el origen de la flecha dependiendo del modo
-        double coordenadaYOrigen = esModo2D ? cargaSeleccionada!.pos.dy : 0.0;
-        double origenY = centroY - (coordenadaYOrigen * escalaRegla);
+    final firstCol = ((0 - center.dx) / escala).floor();
+    final lastCol = ((size.width - center.dx) / escala).ceil();
+    final firstRow = ((0 - center.dy) / escala).floor();
+    final lastRow = ((size.height - center.dy) / escala).ceil();
 
-        final pincelFuerzaNeta = Paint()
-          ..color = Colors.greenAccent
-          ..strokeWidth = 3.0;
+    final labelStyle = TextStyle(color: colorScheme.onSurface, fontSize: 10);
 
-        canvas.drawLine(
-          Offset(origenX, origenY),
-          Offset(origenX + lx, origenY + ly),
-          pincelFuerzaNeta,
-        );
+    for (int i = firstCol; i <= lastCol; i++) {
+      if (i == 0) continue;
+      final x = center.dx + i * escala;
+      _drawLabel(canvas, '$i', Offset(x - 5, center.dy + 4), labelStyle);
+    }
 
-        canvas.drawCircle(
-          Offset(origenX + lx, origenY + ly),
-          4.0,
-          pincelFuerzaNeta..style = PaintingStyle.fill,
-        );
-      }
+    for (int j = firstRow; j <= lastRow; j++) {
+      if (j == 0) continue;
+      // j negativo en canvas = positivo en matemáticas
+      final y = center.dy + j * escala;
+      _drawLabel(canvas, '${-j}', Offset(center.dx + 4, y - 7), labelStyle);
+    }
+  }
+
+  void _drawNumberLine(Canvas canvas, Size size, Offset center) {
+    final axisPaint = Paint()
+      ..color = colorScheme.onSurface
+      ..strokeWidth = 1.8;
+
+    // Solo el eje horizontal centrado verticalmente
+    final cy = size.height / 2;
+    canvas.drawLine(Offset(0, cy), Offset(size.width, cy), axisPaint);
+
+    // Marcas y números
+    final firstCol = ((0 - center.dx) / escala).floor();
+    final lastCol = ((size.width - center.dx) / escala).ceil();
+    final labelStyle = TextStyle(color: colorScheme.onSurface, fontSize: 11);
+    final tickPaint = Paint()
+      ..color = colorScheme.onSurface
+      ..strokeWidth = 1;
+
+    for (int i = firstCol; i <= lastCol; i++) {
+      final x = center.dx + i * escala;
+
+      canvas.drawLine(Offset(x, cy - 6), Offset(x, cy + 6), tickPaint);
+      _drawLabel(canvas, '$i', Offset(x - 5, cy + 10), labelStyle);
     }
   }
 
   @override
-  bool shouldRepaint(covariant SimuladorPainter oldDelegate) => true;
+  bool shouldRepaint(SimuladorPainter old) =>
+    old.esModo2D != esModo2D || old.escala != escala || old.indexSeleccionada != indexSeleccionada || old.origen != origen || old.cargas != cargas;
 }
