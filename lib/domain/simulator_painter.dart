@@ -36,6 +36,7 @@ class SimuladorPainter extends CustomPainter {
     }
 
     _drawCargas(canvas, size, centro);
+    _drawCamposElectricos(canvas, size, centro);
 
     if (indexSeleccionada >= 0 && indexSeleccionada < cargas.length) {
       _drawFuerzaResultante(canvas, size, centro, indexSeleccionada);
@@ -174,6 +175,159 @@ class SimuladorPainter extends CustomPainter {
         ),
       );
     }
+  }
+
+  /// Dibuja las flechas de campo eléctrico alrededor de cada carga.
+  ///
+  /// • Cargas positivas: flechas radiales apuntando hacia AFUERA.
+  /// • Cargas negativas: flechas radiales apuntando hacia ADENTRO.
+  /// • Cargas con magnitud 0: muestra el vector de campo resultante de las
+  ///   demás cargas en ese punto, usando [Carga.calcularCampoElectrico].
+  void _drawCamposElectricos(Canvas canvas, Size size, Offset centro) {
+    // Número de flechas radiales para cargas con magnitud ≠ 0
+    const int numArrows = 8;
+    // Radio (en px) al que se dibujan las flechas radiales
+    const double radioFlecha = 30.0;
+    // Longitud del eje de la flecha
+    const double arrowLen = 18.0;
+    // Mitad del ancho de la punta
+    const double headHalf = 4.5;
+    // Longitud de la punta
+    const double headLen = 8.0;
+
+    for (int i = 0; i < cargas.length; i++) {
+      final carga = cargas[i];
+
+      final px = centro.dx + carga.pos.dx * escala;
+      final py = esModo2D
+          ? centro.dy - carga.pos.dy * escala
+          : size.height / 2;
+      final chargeCenter = Offset(px, py);
+
+      if (carga.magnitud == 0) {
+        // ── Carga neutra: campo resultante de las demás cargas ──────────────
+        // Calculamos el campo eléctrico en la posición de esta carga
+        // sumando las contribuciones de todas las demás.
+        Offset campoTotal = Offset.zero;
+        for (int j = 0; j < cargas.length; j++) {
+          if (j == i) continue;
+          campoTotal += cargas[j].calcularCampoElectrico(carga.pos);
+        }
+
+        final mag = campoTotal.distance;
+        if (mag == 0) continue;
+
+        // Dirección unitaria del campo
+        final dx = campoTotal.dx / mag;
+        final dy = -campoTotal.dy / mag; // invertir Y (coordenadas canvas)
+
+        // Dibujamos una sola flecha partiendo del centro de la carga
+        final color = colorScheme.tertiary.withValues(alpha: 0.85);
+        _drawArrow(
+          canvas,
+          from: chargeCenter,
+          dirX: dx,
+          dirY: dy,
+          length: arrowLen + 6,
+          headLen: headLen,
+          headHalf: headHalf,
+          color: color,
+        );
+      } else {
+        // ── Carga positiva o negativa: flechas radiales ──────────────────────
+        final isPositive = carga.magnitud > 0;
+        final color = isPositive
+            ? Colors.red.withValues(alpha: 0.75)
+            : Colors.blue.withValues(alpha: 0.75);
+
+        for (int k = 0; k < numArrows; k++) {
+          final angle = (2 * pi / numArrows) * k;
+          // Vector unitario radial
+          final ux = cos(angle);
+          final uy = sin(angle);
+
+          if (isPositive) {
+            // Positiva → flecha sale desde el borde del círculo hacia afuera
+            final from = Offset(
+              chargeCenter.dx + radioFlecha * ux,
+              chargeCenter.dy + radioFlecha * uy,
+            );
+            _drawArrow(
+              canvas,
+              from: from,
+              dirX: ux,
+              dirY: uy,
+              length: arrowLen,
+              headLen: headLen,
+              headHalf: headHalf,
+              color: color,
+            );
+          } else {
+            // Negativa → flecha entra desde afuera hacia el borde del círculo
+            final tip = Offset(
+              chargeCenter.dx + radioFlecha * ux,
+              chargeCenter.dy + radioFlecha * uy,
+            );
+            // La "from" está desplazada en sentido contrario
+            final from = Offset(
+              tip.dx + arrowLen * ux,
+              tip.dy + arrowLen * uy,
+            );
+            _drawArrow(
+              canvas,
+              from: from,
+              dirX: -ux,
+              dirY: -uy,
+              length: arrowLen,
+              headLen: headLen,
+              headHalf: headHalf,
+              color: color,
+            );
+          }
+        }
+      }
+    }
+  }
+
+  /// Dibuja una flecha en el canvas.
+  ///
+  /// [from]    punto de inicio del tronco.
+  /// [dirX]/[dirY] dirección unitaria (hacia donde apunta la punta).
+  /// [length]  longitud total (tronco + punta).
+  void _drawArrow(
+      Canvas canvas, {
+        required Offset from,
+        required double dirX,
+        required double dirY,
+        required double length,
+        required double headLen,
+        required double headHalf,
+        required Color color,
+      }) {
+    final tip = Offset(from.dx + dirX * length, from.dy + dirY * length);
+    final shaftTip = Offset(
+      from.dx + dirX * (length - headLen),
+      from.dy + dirY * (length - headLen),
+    );
+
+    final linePaint = Paint()
+      ..color = color
+      ..strokeWidth = 1.6
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawLine(from, shaftTip, linePaint);
+
+    // Perpendicular al eje
+    final perpX = -dirY;
+    final perpY = dirX;
+
+    final arrowPath = Path()
+      ..moveTo(tip.dx, tip.dy)
+      ..lineTo(shaftTip.dx + headHalf * perpX, shaftTip.dy + headHalf * perpY)
+      ..lineTo(shaftTip.dx - headHalf * perpX, shaftTip.dy - headHalf * perpY)
+      ..close();
+
+    canvas.drawPath(arrowPath, Paint()..color = color);
   }
 
   void _drawFuerzaResultante(
