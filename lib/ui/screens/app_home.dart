@@ -92,6 +92,9 @@ class _AppHomeState extends State<AppHome> {
                 onCargasChanged: (nuevasCargas) {
                   setState(() => cargas = nuevasCargas);
                 },
+                onDimensionChange: () {
+                  setState(() => esModo2D = !esModo2D);
+                },
               ),
             ],
           ),

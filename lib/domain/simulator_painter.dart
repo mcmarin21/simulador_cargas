@@ -30,7 +30,7 @@ class SimuladorPainter extends CustomPainter {
     if (esModo2D) {
       _drawGrid(canvas, size, centro);
       _drawAxes(canvas, size, centro);
-      // _drawPoints(canvas, centro);
+      _drawCargas(canvas, centro);
     } else {
       _drawNumberLine(canvas, size, centro);
       // _drawPointsOn1D(canvas, size, center);
@@ -102,13 +102,13 @@ class SimuladorPainter extends CustomPainter {
       canvas,
       'x',
       Offset(size.width - 14, center.dy - 20),
-      const TextStyle(color: Colors.black54, fontSize: 12),
+      TextStyle(color: colorScheme.onSurface, fontSize: 12),
     );
     _drawLabel(
       canvas,
       'y',
       Offset(center.dx - 12, 4),
-      const TextStyle(color: Colors.black54, fontSize: 12),
+      TextStyle(color: colorScheme.onSurface, fontSize: 12),
     );
 
     final firstCol = ((0 - center.dx) / escala).floor();
@@ -137,11 +137,9 @@ class SimuladorPainter extends CustomPainter {
       ..color = colorScheme.onSurface
       ..strokeWidth = 1.8;
 
-    // Solo el eje horizontal centrado verticalmente
     final cy = size.height / 2;
     canvas.drawLine(Offset(0, cy), Offset(size.width, cy), axisPaint);
 
-    // Marcas y números
     final firstCol = ((0 - center.dx) / escala).floor();
     final lastCol = ((size.width - center.dx) / escala).ceil();
     final labelStyle = TextStyle(color: colorScheme.onSurface, fontSize: 11);
@@ -154,6 +152,37 @@ class SimuladorPainter extends CustomPainter {
 
       canvas.drawLine(Offset(x, cy - 6), Offset(x, cy + 6), tickPaint);
       _drawLabel(canvas, '$i', Offset(x - 5, cy + 10), labelStyle);
+    }
+  }
+
+  void _drawCargas(Canvas canvas, Offset centro){
+    for(final carga in cargas){
+      Paint colorPaint;
+      if(carga.magnitud > 0){
+        colorPaint = Paint()
+            ..color = Colors.red
+            ..style = PaintingStyle.fill;
+      }
+      else if(carga.magnitud < 0){
+        colorPaint = Paint()
+            ..color = Colors.blue
+            ..style = PaintingStyle.fill;
+      }
+      else{
+        colorPaint = Paint()
+          ..color = colorScheme.onSurface
+          ..style = PaintingStyle.fill;
+      }
+      final px = centro.dx + carga.pos.dx * escala;
+      final py = centro.dy - carga.pos.dy * escala;
+      canvas.drawCircle(
+          Offset(px, py), 7,
+          colorPaint
+      );
+      _drawLabel(canvas, carga.nombre, Offset(px + 10, py - 16), TextStyle(
+        color: colorScheme.onSurface,
+        fontSize: 12,
+      ));
     }
   }
 
