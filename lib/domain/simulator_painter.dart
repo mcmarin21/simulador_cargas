@@ -223,15 +223,38 @@ class SimuladorPainter extends CustomPainter {
 
         // Dibujamos una sola flecha partiendo del centro de la carga
         final color = colorScheme.tertiary.withValues(alpha: 0.85);
+        final totalLen = arrowLen + 6;
         _drawArrow(
           canvas,
           from: chargeCenter,
           dirX: dx,
           dirY: dy,
-          length: arrowLen + 6,
+          length: totalLen,
           headLen: headLen,
           headHalf: headHalf,
           color: color,
+        );
+
+        // Etiqueta de magnitud del campo en la punta de la flecha
+        _drawLabel(
+          canvas,
+          'E = ${_formatCientifica(mag)} N/C',
+          Offset(
+            chargeCenter.dx + dx * totalLen + 4,
+            chargeCenter.dy + dy * totalLen - 14,
+          ),
+          TextStyle(
+            color: colorScheme.tertiary,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            shadows: [
+              Shadow(
+                color: colorScheme.surface.withValues(alpha: 0.85),
+                blurRadius: 3,
+                offset: const Offset(1, 1),
+              ),
+            ],
+          ),
         );
       } else {
         // ── Carga positiva o negativa: flechas radiales ──────────────────────
