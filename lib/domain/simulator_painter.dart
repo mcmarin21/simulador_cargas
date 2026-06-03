@@ -30,11 +30,10 @@ class SimuladorPainter extends CustomPainter {
     if (esModo2D) {
       _drawGrid(canvas, size, centro);
       _drawAxes(canvas, size, centro);
-      _drawCargas(canvas, centro);
     } else {
       _drawNumberLine(canvas, size, centro);
-      // _drawPointsOn1D(canvas, size, center);
     }
+    _drawCargas(canvas, size, centro);
   }
 
   void _drawGrid(Canvas canvas, Size size, Offset centro) {
@@ -155,7 +154,8 @@ class SimuladorPainter extends CustomPainter {
     }
   }
 
-  void _drawCargas(Canvas canvas, Offset centro){
+  void _drawCargas(Canvas canvas, Size size, Offset centro){
+    double py = size.height / 2;
     for(final carga in cargas){
       final fillPaint = Paint()
         ..color = carga.magnitud > 0 ? Colors.red : carga.magnitud < 0 ? Colors.blue : colorScheme.surface
@@ -165,7 +165,9 @@ class SimuladorPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3;
       final px = centro.dx + carga.pos.dx * escala;
-      final py = centro.dy - carga.pos.dy * escala;
+      if(esModo2D){
+        py = centro.dy - carga.pos.dy * escala;
+      }
       canvas.drawCircle(
           Offset(px, py), 7,
           fillPaint
