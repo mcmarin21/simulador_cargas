@@ -19,7 +19,6 @@ class _AppHomeState extends State<AppHome> {
   double _fracIzquierda = _fracMin;
   List<Carga> cargas = [];
 
-
   // Variable de estado para controlar el modo 1D / 2D
   bool esModo2D = true;
 
@@ -31,73 +30,44 @@ class _AppHomeState extends State<AppHome> {
         var tamanoIzq = (tamMax - _tamanoDivisor) * _fracIzquierda;
         var tamanoDer = tamMax - _tamanoDivisor - tamanoIzq;
 
-        return Scaffold(
-          appBar: AppBar(
-            actions: [
-              Row(
-                children: [
-                  const Text(
-                    "1D",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Switch(
-                    value: esModo2D,
-                    activeColor: Colors.blueAccent,
-                    onChanged: (valor) {
-                      setState(() {
-                        esModo2D =
-                            valor; // Alterna el modo y Flutter redibuja todo automáticamente respetando las posiciones originales
-                      });
-                    },
-                  ),
-                  const Text(
-                    "2D",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(width: 20),
-                ],
-              ),
-            ],
-          ),
-          body: Row(
-            children: [
-              SizedBox(
-                width: tamanoIzq,
-                child: PanelCargas(
-                  cargas: cargas,
-                  onCargaAgregada: (nuevaCarga) {
-                    setState(() {
-                      cargas.add(nuevaCarga);
-                    });
-                  },
-                ),
-              ),
-
-              DivisorHorizontal(
-                width: _tamanoDivisor,
-                onDragUpdate: (details) {
+        return Row(
+          children: [
+            SizedBox(
+              width: tamanoIzq,
+              child: PanelCargas(
+                cargas: cargas,
+                onCargaAgregada: (nuevaCarga) {
                   setState(() {
-                    final delta = details.delta.dx / tamMax;
-                    _fracIzquierda = (_fracIzquierda + delta).clamp(
-                      _fracMin,
-                      1 - _fracMin,
-                    );
+                    cargas.add(nuevaCarga);
                   });
                 },
               ),
+            ),
 
-              PanelViewport(
-                cargas: cargas,
-                modo2D: esModo2D,
-                onCargasChanged: (nuevasCargas) {
-                  setState(() => cargas = nuevasCargas);
-                },
-                onDimensionChange: () {
-                  setState(() => esModo2D = !esModo2D);
-                },
-              ),
-            ],
-          ),
+            DivisorHorizontal(
+              width: _tamanoDivisor,
+              onDragUpdate: (details) {
+                setState(() {
+                  final delta = details.delta.dx / tamMax;
+                  _fracIzquierda = (_fracIzquierda + delta).clamp(
+                    _fracMin,
+                    1 - _fracMin,
+                  );
+                });
+              },
+            ),
+
+            PanelViewport(
+              cargas: cargas,
+              modo2D: esModo2D,
+              onCargasChanged: (nuevasCargas) {
+                setState(() => cargas = nuevasCargas);
+              },
+              onDimensionChange: () {
+                setState(() => esModo2D = !esModo2D);
+              },
+            ),
+          ],
         );
       },
     );
