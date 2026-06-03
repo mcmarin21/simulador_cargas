@@ -10,7 +10,7 @@ ___
 
 ###### El programa tiene la siguiente interfaz de inicio, es una pantalla de bienvenida la cual cuenta solo con un botón para arrancar directamente con el programa.
 
-![Mi diagrama](cargas1.png)
+![Mi diagrama](cargas1.1.png)
 
 ###### Una vez entrado al programa, nos muestra un plano cartesiano de 2 dimensiones en la mayor parte del lado derecho de la pantalla.
 
