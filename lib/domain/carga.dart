@@ -38,26 +38,20 @@ class Carga {
   Offset calcularCampoElectrico(Offset punto) {
     double r2 = (punto - pos).distanceSquared;
 
-    if (r2 == 0) return Offset(0, 0);
+    if (r2 == 0) return Offset.zero;
 
     double kBase = 8.99;
-    double q = magnitud.abs();
     int sumaExponentes = 9 + prefijo;
 
-    double magnitudCampo = (kBase * q * pow(10, sumaExponentes)) / r2;
+    double magnitudCampo = (kBase * magnitud.abs() * pow(10, sumaExponentes)) / r2;
 
-    double dx = punto.dx - pos.dx;
-    double dy = punto.dy - pos.dy;
-    double angulo = atan2(dy, dx);
-
-    double campoX = magnitudCampo * cos(angulo);
-    double campoY = magnitudCampo * sin(angulo);
+    Offset direccionUnitaria = (punto - pos) / (punto - pos).distance;
+    Offset campo = direccionUnitaria * magnitudCampo;
 
     if (magnitud < 0) {
-      campoX = -campoX;
-      campoY = -campoY;
+      campo = -campo;
     }
 
-    return Offset(campoX, campoY);
+    return campo;
   }
 }
