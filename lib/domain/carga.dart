@@ -35,8 +35,9 @@ class Carga {
     return Offset(fuerzaX, fuerzaY);
   }
 
-  Offset calcularCampoElectrico(Offset punto) {
-    double r2 = (punto - pos).distanceSquared;
+  Offset calcularCampoElectrico(Offset punto, bool esModo2D) {
+    Offset vectorPos = esModo2D ? punto - pos : Offset(punto.dx - pos.dx, 0);
+    double r2 = vectorPos.distanceSquared;
 
     if (r2 == 0) return Offset.zero;
 
@@ -45,7 +46,7 @@ class Carga {
 
     double magnitudCampo = (kBase * magnitud.abs() * pow(10, sumaExponentes)) / r2;
 
-    Offset direccionUnitaria = (punto - pos) / (punto - pos).distance;
+    Offset direccionUnitaria = vectorPos / vectorPos.distance;
     Offset campo = direccionUnitaria * magnitudCampo;
 
     if (magnitud < 0) {
