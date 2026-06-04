@@ -211,7 +211,7 @@ class SimuladorPainter extends CustomPainter {
         Offset campoTotal = Offset.zero;
         for (int j = 0; j < cargas.length; j++) {
           if (j == i) continue;
-          campoTotal += cargas[j].calcularCampoElectrico(carga.pos);
+          campoTotal += cargas[j].calcularCampoElectrico(carga.pos, esModo2D);
         }
 
         final mag = campoTotal.distance;
@@ -219,7 +219,7 @@ class SimuladorPainter extends CustomPainter {
 
         // Dirección unitaria del campo
         final dx = campoTotal.dx / mag;
-        final dy = -campoTotal.dy / mag; // invertir Y (coordenadas canvas)
+        final dy = -campoTotal.dy / mag;
 
         // Dibujamos una sola flecha partiendo del centro de la carga
         final color = colorScheme.tertiary.withValues(alpha: 0.85);
