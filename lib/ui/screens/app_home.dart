@@ -44,6 +44,12 @@ class _AppHomeState extends State<AppHome> {
                     cargas.remove(cargaEliminada);
                   });
                 },
+                onCargaEditada: (cargaEditada) {
+                  setState(() {
+                    final index = cargas.indexOf(cargaEditada);
+                    if (index != -1) cargas[index] = cargaEditada;
+                  });
+                },
               ),
             ),
 
