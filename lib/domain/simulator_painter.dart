@@ -362,7 +362,7 @@ class SimuladorPainter extends CustomPainter {
     Offset fuerzaR = Offset(0, 0);
     for (int i = 0; i < cargas.length; i++) {
       if (i == idx) continue;
-      final f = cargaOrigen.calcularFuerza(cargas[i]);
+      final f = cargaOrigen.calcularFuerza(cargas[i], esModo2D);
       fuerzaR = fuerzaR + f;
     }
 

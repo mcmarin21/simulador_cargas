@@ -12,8 +12,9 @@ class Carga {
   Carga(this.id, this.pos, this.magnitud, this.prefijo, this.nombre);
 
 
-  Offset calcularFuerza(Carga otraCarga) {
-    double r2 = (otraCarga.pos - pos).distanceSquared;
+  Offset calcularFuerza(Carga otraCarga, bool esModo2D) {
+    Offset vectorPos = esModo2D ? otraCarga.pos - pos : Offset(otraCarga.pos.dx - pos.dx, 0);
+    double r2 = vectorPos.distanceSquared;
     if (r2 == 0) return Offset(0.0, 0.0);
 
     double kBase = 8.99;  
@@ -21,18 +22,14 @@ class Carga {
     int sumaExponentes = 9 + prefijo + otraCarga.prefijo;
     double magnitudFuerza = (kBase * productoMagnitudes * pow(10, sumaExponentes)) / r2;
 
-    double dx = otraCarga.pos.dx - pos.dx;
-    double dy = otraCarga.pos.dy - pos.dy;
-    double angulo = atan2(dy, dx);
+    Offset direccionUnitaria = vectorPos / vectorPos.distance;
+    Offset fuerza =  direccionUnitaria * magnitudFuerza;
 
-    double fuerzaX = magnitudFuerza * cos(angulo);
-    double fuerzaY = magnitudFuerza * sin(angulo);
-
-    if (magnitud * otraCarga.magnitud > 0) {
-      fuerzaX = -fuerzaX;
-      fuerzaY = -fuerzaY;
+    if (magnitud * otraCarga.magnitud > 0){
+      fuerza = -fuerza;
     }
-    return Offset(fuerzaX, fuerzaY);
+
+    return fuerza;
   }
 
   Offset calcularCampoElectrico(Offset punto, bool esModo2D) {
