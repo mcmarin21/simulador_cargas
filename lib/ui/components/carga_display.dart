@@ -95,14 +95,14 @@ class _CargaDisplayState extends State<CargaDisplay> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       IconButton(
-                        onPressed: () => widget.onCargaEdit,
+                        onPressed: () => widget.onCargaEdit?.call(widget.carga),
                         icon: Icon(
                           Icons.edit,
                         ),
                         iconSize: 24,
                       ),
                       IconButton(
-                        onPressed: () => widget.onCargaDelete,
+                        onPressed: () => widget.onCargaDelete?.call(widget.carga),
                         icon: Icon(
                           Icons.delete,
                         ),

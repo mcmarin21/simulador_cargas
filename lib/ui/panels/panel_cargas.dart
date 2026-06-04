@@ -5,10 +5,14 @@ import 'package:simulador_cargas/ui/components/carga_display.dart';
 class PanelCargas extends StatefulWidget {
   final List<Carga> cargas;
   final ValueChanged<Carga> onCargaAgregada;
+  final ValueChanged<Carga> onCargaEliminada;
+  final ValueChanged<Carga> onCargaEditada;
 
   const PanelCargas({
     required this.cargas,
     required this.onCargaAgregada,
+    required this.onCargaEliminada,
+    required this.onCargaEditada,
     super.key,
   });
 
@@ -26,21 +30,20 @@ class _PanelCargasState extends State<PanelCargas> {
     super.dispose();
   }
 
-  void _mostrarVentanaConfiguracion() {
-    final nombreCtrl = TextEditingController(text: "Q${widget.cargas.length + 1}");
-    final magnitudCtrl = TextEditingController(text: "1.0");
-    final prefijoCtrl = TextEditingController(text: "-6");
-    
-    // 1. Nuevos controladores para las posiciones
-    final posXCtrl = TextEditingController(text: "0.0");
-    final posYCtrl = TextEditingController(text: "0.0");
+  void _mostrarVentanaConfiguracion({Carga? cargaAEditar}) {
+    final bool esEdicion = cargaAEditar != null;
+
+    final nombreCtrl = TextEditingController(text: esEdicion ? cargaAEditar.nombre : "Q${widget.cargas.length + 1}");
+    final magnitudCtrl = TextEditingController(text: esEdicion ? cargaAEditar.magnitud.toString() : "1.0");
+    final prefijoCtrl = TextEditingController(text: esEdicion ? cargaAEditar.prefijo.toString() : "-6");
+    final posXCtrl = TextEditingController(text: esEdicion ? cargaAEditar.pos.dx.toString() : "0.0");
+    final posYCtrl = TextEditingController(text: esEdicion ? cargaAEditar.pos.dy.toString() : "0.0");
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Agregar Carga con Posición"),
-          // Usamos SingleChildScrollView por si el teclado tapa la pantalla
+          title: Text(esEdicion ? "Editar Carga" : "Agregar Carga con Posición"),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -92,25 +95,32 @@ class _PanelCargasState extends State<PanelCargas> {
               onPressed: () {
                 final double mag = double.tryParse(magnitudCtrl.text) ?? 1.0;
                 final int pref = int.tryParse(prefijoCtrl.text) ?? -6;
-                
-                // 2. Leemos las coordenadas que ingresó el usuario
                 final double pX = double.tryParse(posXCtrl.text) ?? 0.0;
                 final double pY = double.tryParse(posYCtrl.text) ?? 0.0;
-                
-                final int idUnico = DateTime.now().microsecondsSinceEpoch;
 
-                final nuevaCarga = Carga(
-                  idUnico,
-                  Offset(pX, pY), // 3. ¡Se asigna directamente a la matemática!
-                  mag,
-                  pref,
-                  nombreCtrl.text,
-                );
+                if (esEdicion) {
+                  final cargaEditada = Carga(
+                    cargaAEditar.id,
+                    Offset(pX, pY),
+                    mag,
+                    pref,
+                    nombreCtrl.text,
+                  );
+                  widget.onCargaEditada(cargaEditada);
+                } else {
+                  final nuevaCarga = Carga(
+                    DateTime.now().microsecondsSinceEpoch,
+                    Offset(pX, pY),
+                    mag,
+                    pref,
+                    nombreCtrl.text,
+                  );
+                  widget.onCargaAgregada(nuevaCarga);
+                }
 
-                widget.onCargaAgregada(nuevaCarga);
                 Navigator.pop(context);
               },
-              child: const Text("Colocar en Plano"),
+              child: Text(esEdicion ? "Guardar Cambios" : "Colocar en Plano"),
             ),
           ],
         );
@@ -143,6 +153,10 @@ class _PanelCargasState extends State<PanelCargas> {
                   return CargaDisplay(
                       carga: widget.cargas[index],
                       mostrarAcciones: true,
+                      onCargaDelete: (carga) {
+                        widget.onCargaEliminada(carga);
+                      },
+                      onCargaEdit: (carga) => _mostrarVentanaConfiguracion(cargaAEditar: carga)
                   );
                 },
               ),
