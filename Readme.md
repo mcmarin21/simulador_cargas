@@ -44,7 +44,7 @@ ___
 
 ### Compilación
 
-1. Instalar y configurar [flutter sdk](https://docs.flutter.dev/install)
+1. Instalar y configurar [flutter sdk](https://docs.flutter.dev/install), únicamente es necesario configurar Windows como tarjet.
 2. Clonar el repositorio con `git clone https://github.com/mcmarin21/simulador_cargas.git`
 3. Abrir la carpeta `simulador_cargas`
 4. Ejecutar `flutter build windows`
