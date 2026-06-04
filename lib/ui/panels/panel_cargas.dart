@@ -5,10 +5,12 @@ import 'package:simulador_cargas/ui/components/carga_display.dart';
 class PanelCargas extends StatefulWidget {
   final List<Carga> cargas;
   final ValueChanged<Carga> onCargaAgregada;
+  final ValueChanged<Carga> onCargaEliminada;
 
   const PanelCargas({
     required this.cargas,
     required this.onCargaAgregada,
+    required this.onCargaEliminada,
     super.key,
   });
 
@@ -143,6 +145,9 @@ class _PanelCargasState extends State<PanelCargas> {
                   return CargaDisplay(
                       carga: widget.cargas[index],
                       mostrarAcciones: true,
+                      onCargaDelete: (carga) {
+                        widget.onCargaEliminada(carga);
+                      },
                   );
                 },
               ),

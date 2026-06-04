@@ -39,6 +39,11 @@ class _AppHomeState extends State<AppHome> {
                     cargas.add(nuevaCarga);
                   });
                 },
+                onCargaEliminada: (cargaEliminada) {
+                  setState(() {
+                    cargas.remove(cargaEliminada);
+                  });
+                },
               ),
             ),
 

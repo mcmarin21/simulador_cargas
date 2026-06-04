@@ -55,4 +55,11 @@ class Carga {
 
     return campo;
   }
+
+  @override
+  int get hashCode => Object.hash(id, pos, nombre, magnitud, prefijo);
+
+  @override
+  bool operator ==(Object other) =>
+      other is Carga && runtimeType == other.runtimeType && id == other.id;
 }
